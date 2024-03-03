@@ -52,6 +52,10 @@ def index(request):
         reply = "Hi, I am G Chat."
         if "who are you" in text:
             return render(request, 'index.html', {'prompt': prompt, 'reply': reply})
+
+        elif "what is your name" in text or "your name" in text:
+            reply = "My name is G Chat."
+            return render(request, 'index.html', {'prompt': prompt, 'reply': reply})
         
         elif "who created you" in text or "who developed you" in text:
             reply="Ghanshyam Vaja Developed Me."
