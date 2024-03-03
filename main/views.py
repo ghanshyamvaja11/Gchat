@@ -1,7 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 import google.generativeai as genai
-import pyttsx3
 import re
 import os
 from dotenv import load_dotenv
@@ -48,23 +47,19 @@ def index(request):
         ])
 
         convo.send_message(request.POST.get('prompt'))
-        if True:
-            prompt = request.POST.get('prompt')
-            # # Initialize the Text-to-Speech engine
-            engine = pyttsx3.init()
-
-            # Set properties (optional)
-            engine.setProperty('rate', 150)    # Speed of speech
-            engine.setProperty('volume', 0.9)   # Volume level
-            # # Speak the text
-            # # Define a regex pattern to match symbols
+        text = request.POST.get('prompt').lower()
+        prompt = request.POST.get('prompt')
+        reply = "Hi, I am G Chat."
+        if "who are you" in text:
+            return render(request, 'index.html', {'prompt': prompt, 'reply': reply})
+        
+        elif "who created you" in text or "who developed you" in text:
+            reply="Ghanshyam Vaja Developed Me."
+            return render(request, 'index.html', {'prompt': prompt, 'reply': reply})
+        
+        else:
             pattern = r'[^\w\s]'
             text = convo.last.text
-            # # Remove symbols using regex substitution
             reply = re.sub(pattern, '', text)
-            # engine.say(reply)
-            # engine.runAndWait()
-
-            # return HttpResponse(reply)
             return render(request, 'index.html', {'prompt': prompt, 'reply': reply})
     return render(request, "index.html")
