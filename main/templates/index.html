@@ -48,14 +48,13 @@
         }
        header {
     width: 100vw;
-    padding-top: 4px;
     background: var(--chat-bg);
     border-bottom: 1px solid #181a1f;
     box-shadow: 0 2px 8px 0 rgba(0,0,0,0.08);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    height: 96px; /* Increased height for a bigger header */
+    height: 80px; /* Increased height for a bigger header */
 }
 
 .logo-bar {
@@ -65,7 +64,7 @@
     letter-spacing: 2px;
     display: flex;
     align-items: center;
-    height: 96px;           /* Match header height for vertical centering */
+    height: 80px;           /* Match header height for vertical centering */
     padding-left: 38px;     /* More left padding for a larger feel */
 }
 
@@ -494,7 +493,7 @@
     <form id="chat_form" class="chat-input-bar" autocomplete="off">
         <div class="input-row">
     {% csrf_token %}
-    <button type="button" id="micBtn" class="mic-btn" title="Listen">
+    <button type="button" id="micBtn" class="mic-btn" title="Speak">
         <img src="{% static 'imgs/mic.svg' %}" alt="Mic" id="micIcon"/>
     </button>
     <input type="text" name="prompt" id="prompt" class="input-prompt" maxlength="240" placeholder="Type your message..." autocomplete="off" />
@@ -679,18 +678,18 @@ function isUserAtBottom() {
     const tolerance = 40; // px
     return (chatContainer.scrollHeight - chatContainer.scrollTop - chatContainer.clientHeight) < tolerance;
 }
-function scrollChatToBottomIfNeeded() {
-    if (isUserAtBottom()) {
-        requestAnimationFrame(() => {
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-        });
-    }
-}
 
 function typeMessage(element, text, callback, row) {
     let i = 0;
     typingActive = true;
     showStopButton();
+
+    function scrollChatToBottom() {
+        // Wait for DOM update before scrolling
+        requestAnimationFrame(() => {
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        });
+    }
 
     function typing() {
         if (!typingActive) {
@@ -699,7 +698,7 @@ function typeMessage(element, text, callback, row) {
             attachCopyHandlers(element);
             showSendButton();
             attachActions(row, 'ai', text, true);
-            scrollChatToBottomIfNeeded();
+            scrollChatToBottom();
             if (callback) callback();
             return;
         }
@@ -707,7 +706,7 @@ function typeMessage(element, text, callback, row) {
         if (i <= text.length) {
             element.innerHTML = `<div class="ai-header"><img src="{% static 'imgs/bot.svg' %}" alt="AI" class="ai-icon">G CHAT</div>`
                 + formatMessage(text.slice(0, i)) + '<span class="typing"></span>';
-            scrollChatToBottomIfNeeded();
+            scrollChatToBottom();
             i++;
             typingTimer = setTimeout(typing, 8 + Math.random() * 9);
         } else {
@@ -718,7 +717,7 @@ function typeMessage(element, text, callback, row) {
             showSendButton();
             attachActions(row, 'ai', text, true);
             typingActive = false;
-            scrollChatToBottomIfNeeded();
+            scrollChatToBottom();
             if (callback) callback();
         }
     }
