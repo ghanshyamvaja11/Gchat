@@ -1,228 +1,693 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
-    {% comment %} <link rel="icon" type="image/svg+xml" href="{% static 'imgs/favicon.ico' %}"/> {% endcomment %}
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>G Chat</title>
-    <link rel="stylesheet" href="">
-  </head>
-  <style>
-    @import url("https://fonts.googleapis.com/css2?family=Alegreya+Sans:wght@100;300;400;500;700;800;900&display=swap");
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: "Alegreya Sans", sans-serif;
-}
-
-body {
-  background: rgb(24, 24, 232);
-}
-
-#app {
-  width: 100vw;
-  height: 96vh;
-  background: #1e2782;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-}
-
-#chat_container {
-  flex: 1;
-  width: 100%;
-  height: 92%;
-  overflow-y: scroll;
-
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-
-  padding-bottom: 20px;
-  scroll-behavior: smooth;
-}
-
-/* hides scrollbar */
-#chat_container::-webkit-scrollbar {
-  display: none;
-}
-
-.wrapper {
-  width: 100%;
-  padding: 15px;
-}
-
-.ai {
-  background: #040622;
-}
-
-.chat {
-  width: 100%;
-  max-width: 1280px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  gap: 10px;
-}
-
-.profile {
-  width: 36px;
-  height: 36px;
-  border-radius: 5px;
-
-  background: #5436DA;
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.ai .profile {
-  background: #10a37f;
-}
-
-.profile img {
-  width: 60%;
-  height: 60%;
-  object-fit: contain;
-}
-
-.message {
-  flex: 1;
-  color: #dcdcdc;
-  font-size: 20px;
-
-  max-width: 100%;
-  overflow-x: scroll;
-
-  /*
-   * white space refers to any spaces, tabs, or newline characters that are used to format the CSS code
-   * specifies how white space within an element should be handled. It is similar to the "pre" value, which tells the browser to treat all white space as significant and to preserve it exactly as it appears in the source code.
-   * The pre-wrap value allows the browser to wrap long lines of text onto multiple lines if necessary.
-   * The default value for the white-space property in CSS is "normal". This tells the browser to collapse multiple white space characters into a single space, and to wrap text onto multiple lines as needed to fit within its container.
-  */
-  white-space: pre-wrap; 
-
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-/* hides scrollbar */
-.message::-webkit-scrollbar {
-  display: none;
-}
-
-form {
-  width: 100%;
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 10px;
-  background: #1e3b52;
-
-  display: flex;
-  flex-direction: row;
-  gap: 10px;
-}
-
-textarea {
-  width: 96%;
-  color: #fff;
-  font-size: 18px;
-  padding: 10px;
-  background: transparent;
-  border-radius: 5px;
-  border: none;
-  outline: none;
-}
-
-button {
-  outline: 0;
-  border: 0;
-  cursor: pointer;
-  background: transparent;
-}
-
-form img {
-  width: 30px;
-  height: 30px;
-}
-
-@media only screen and (max-width: 600px) {
-  #app {
-  width: 100vw;
-  height: 88vh;
-  background: #1e2782;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-}
-}
-  </style>
-  <body>
-    <div id="app">
-      <div id="chat_container"></div>
-      <form action="{% url 'index' %}" method="post" id="chat_form">
-        {% csrf_token %}
-        <textarea name="prompt" id="" cols="1" rows="1" placeholder="Ask to G Chat..." style="resize: none;"></textarea>
-        <button type="submit"><img src="{% static 'imgs/send.svg' %}" alt="send" />
-      </form>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Fira+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <!-- PrismJS for syntax highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --main-bg: linear-gradient(135deg, #232526 0%, #414345 100%);
+            --chat-bg: #24272c;
+            --ai-bg: #232526;
+            --user-bg: #1f2227;
+            --ai-border: #00cfff;
+            --user-border: #ffe066;
+            --input-bg: #24272c;
+            --input-focus: #2a2e36;
+            --primary: #00cfff;
+            --secondary: #ffe066;
+            --accent: #f8ffae;
+            --font-main: 'Montserrat', Arial, sans-serif;
+            --font-code: 'Fira Mono', 'Monaco', monospace;
+            --shadow: 0 8px 32px 0 rgba(0,0,0,0.15);
+        }
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            background: var(--main-bg);
+            width: 100vw;
+            overflow: hidden;
+        }
+        body {
+            min-height: 100vh;
+            font-family: var(--font-main);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            width: 100vw;
+            overflow: hidden;
+        }
+        header {
+            width: 100vw;
+            background: var(--chat-bg);
+            border-bottom: 1px solid #181a1f;
+            box-shadow: 0 2px 8px 0 rgba(0,0,0,0.08);
+        }
+        .logo-bar {
+            font-size: 1.7rem;
+            font-weight: 700;
+            color: var(--primary);
+            letter-spacing: 2px;
+            display: flex;
+            align-items: center;
+            height: 56px;
+            padding-left: 24px;
+        }
+        .logo-bar img {
+            width: 38px;
+            height: 38px;
+            margin-right: 15px;
+        }
+        main {
+            flex: 1;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            position: relative;
+            background: var(--main-bg);
+        }
+        .chat-outer {
+            flex: 1 1 auto;
+            display: flex;
+            flex-direction: column;
+            width: 100vw;
+            min-height: 0;
+            position: relative;
+            padding-bottom: 70px; /* Room for input bar */
+            height: calc(100vh - 56px - 48px); /* header + footer approx, adjust as needed */
+        }
+        #chat_container {
+            flex: 1 1 auto;
+            width: 100vw;
+            max-width: 100vw;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            background: var(--chat-bg);
+            box-sizing: border-box;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 20px 18px 0 18px; /* Space both sides */
+            min-height: 0;
+            position: relative;
+            height: 100%; /* fix: force chat area height */
+        }
+        .message-row {
+            width: 100%;
+            margin: 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 18px;
+            margin-bottom: 2px;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        .profile-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        .ai .profile-icon { background: var(--primary);}
+        .user .profile-icon { background: var(--secondary);}
+        .profile-icon img {
+            width: 26px;
+            height: 26px;
+        }
+        .message-content {
+            flex: 1;
+            background: var(--user-bg);
+            color: #f7f7f7;
+            border-radius: 13px;
+            padding: 20px 22px 20px 22px;
+            font-size: 1.11rem;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.09);
+            position: relative;
+            line-height: 1.6;
+            word-break: break-word;
+            border: 1.5px solid var(--user-border);
+            font-family: var(--font-main);
+            margin-bottom: 0;
+            max-width: 100%;
+            min-width: 0;
+        }
+        .ai .message-content {
+            background: var(--ai-bg);
+            color: #e8f5ff;
+            border: 1.5px solid var(--ai-border);
+            font-size: 1.08rem;
+        }
+        .ai-header {
+            font-size: 1.14rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 7px;
+        }
+        .ai-icon {
+            width: 23px;
+            height: 23px;
+        }
+        .ai-footer {
+            font-size: 0.97rem;
+            color: #00cfff;
+            margin-top: 10px;
+            text-align: right;
+        }
+        .message-content strong { color: var(--primary); font-weight: 700; }
+        .message-content em { color: var(--secondary); font-style: italic; }
+        .message-content code {
+            background: #191d22;
+            color: var(--secondary);
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 1em;
+            font-family: var(--font-code);
+        }
+        .message-content pre {
+            background: #191d22;
+            color: #00cfff;
+            border-radius: 8px;
+            font-family: var(--font-code);
+            font-size: 1.01em;
+            margin: 10px 0;
+            overflow-x: auto;
+            position: relative;
+            max-width: 100vw;
+            width: 100%;
+            min-width: 0;
+            white-space: pre;
+            box-sizing: border-box;
+            padding: 13px 16px;
+        }
+        .prism-block {
+            background: #191d22;
+            border-radius: 8px;
+            margin: 10px 0;
+            padding: 13px 16px;
+            font-size: 1em;
+            font-family: var(--font-code);
+            overflow-x: auto;
+            position: relative;
+            max-width: 100vw;
+            width: 100%;
+        }
+        blockquote {
+            background: #323642;
+            color: #ffe066;
+            padding: 10px 18px;
+            border-left: 3px solid #00cfff;
+            margin: 10px 0;
+            border-radius: 8px;
+            font-style: italic;
+            font-size: 1em;
+        }
+        img {
+            max-width: 100vw;
+            border-radius: 8px;
+            margin: 10px 0;
+            box-shadow: 0 0 8px #181a1f;
+        }
+        ul, ol {
+            margin: 10px 0;
+            padding-left: 16px;
+            font-size: 1em;
+        }
+        li {
+            margin: 8px 0;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 7px;
+            right: 12px;
+            background: var(--primary);
+            color: #24272c;
+            border: none;
+            border-radius: 5px;
+            padding: 3px 10px 3px 9px;
+            font-size: 1em;
+            cursor: pointer;
+            z-index: 2;
+            opacity: 0.85;
+            font-family: var(--font-main);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .copy-btn.copied {
+            background: var(--secondary);
+            color: #232526;
+            font-weight: bold;
+        }
+        .chat-input-bar {
+            width: 100vw;
+            max-width: 100vw;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            background: var(--chat-bg);
+            border-top: 1.5px solid #181a1f;
+            box-shadow: var(--shadow);
+            margin: 0;
+            z-index: 100;
+        }
+        .input-row {
+            width: 100vw;
+            max-width: 100vw;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 18px 12px 18px;
+            box-sizing: border-box;
+        }
+        .input-prompt {
+            flex: 1;
+            background: var(--input-bg);
+            color: #e1f7ff;
+            border: none;
+            outline: none;
+            border-radius: 11px;
+            padding: 13px 17px;
+            font-size: 1.1rem;
+            min-height: 38px;
+            box-sizing: border-box;
+            transition: background 0.2s;
+            font-family: var(--font-main);
+            resize: none;
+            max-height: 140px;
+            line-height: 1.35;
+            width: 100%;
+        }
+        .input-prompt:focus {
+            background: var(--input-focus);
+        }
+        .mic-btn {
+            width:36px; height:36px; background:var(--input-bg); border:none; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:background 0.2s;
+        }
+        .mic-btn.recording { background: #e53935 !important; }
+        .mic-btn img { width: 22px; height: 22px;}
+        .send-btn {
+            width:36px; height:36px; background:var(--primary); border:none; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:background 0.2s;
+        }
+        .send-btn img { width: 22px; height: 22px;}
+        .actions-row {
+            margin-top: 7px;
+            display: flex;
+            gap: 8px;
+        }
+        .actions-row button {
+            padding: 6px 14px;
+            border-radius: 7px;
+            border: none;
+            background: var(--primary);
+            color: #24272c;
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: var(--font-main);
+            cursor: pointer;
+            transition: background 0.2s;
+            opacity: 0.95;
+        }
+        .actions-row button.speak-btn {
+            background: var(--secondary);
+            color: #222;
+        }
+        .actions-row button.edit-btn {
+            background: #24272c;
+            color: #ffe066;
+            border:1px solid #ffe066;
+        }
+        .actions-row button.requery-btn {
+            background: var(--ai-border);
+            color: #fff;
+        }
+        footer {
+            width: 100vw;
+            text-align: center;
+            padding: 8px 0 0 0;
+            font-size: 0.95rem;
+            color: var(--primary);
+            background: none;
+            letter-spacing: 1px;
+        }
+        @media (max-width: 900px) {
+            .logo-bar { font-size: 1.2rem; height: 42px; padding-left: 10px;}
+            .logo-bar img {width: 26px; height: 26px;}
+            .message-row, .input-row, #chat_container, .chat-input-bar { max-width: 100vw; }
+            .message-content, .message-content pre { max-width: 100vw; }
+            #chat_container {padding-left: 7px; padding-right: 7px;}
+            .input-row {padding-left: 7px; padding-right: 7px;}
+        }
+        @media (max-width: 600px) {
+            .logo-bar { font-size: 1rem; padding-left:4px;height:32px;}
+            .logo-bar img {width:18px;height:18px;margin-right:3px;}
+            #chat_container, .chat-input-bar { padding: 1px;}
+            .chat-input-bar { bottom: 0;}
+            .input-row {gap:5px;padding:6px 0;}
+            .profile-icon { width:22px; height:22px;}
+            .profile-icon img { width:13px;height:13px;}
+            .message-content { font-size:0.96rem; padding:8px 9px 8px 9px;}
+            .message-content pre { max-width: 100vw; min-width: 40px; font-size:0.9em;}
+            .prism-block {font-size:0.9em;}
+            .actions-row button {font-size:0.86rem;padding:4px 8px;}
+            .ai-header {font-size:1rem;}
+            .ai-footer {font-size:0.82rem;}
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div class="logo-bar">
+        <img src="{% static 'imgs/bot.svg' %}" alt="G Chat">
+        G Chat
     </div>
-    
+</header>
+<main>
+    <div class="chat-outer">
+        <div id="chat_container"></div>
+    </div>
+    <form id="chat_form" class="chat-input-bar" autocomplete="off">
+        <div class="input-row">
+            {% csrf_token %}
+            <button type="button" id="micBtn" class="mic-btn" title="Speak">
+                <img src="{% static 'imgs/mic.svg' %}" alt="Mic" id="micIcon"/>
+            </button>
+            <input type="text" name="prompt" id="prompt" class="input-prompt" maxlength="240" placeholder="Type your message..." autocomplete="off" />
+            <button type="submit" class="send-btn" title="Send"><img src="{% static 'imgs/send.svg' %}" alt="send" /></button>
+        </div>
+    </form>
+</main>
+<footer>
+    © {{ now|date:"Y" }} Developed by GHANSHYAM VAJA
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
 <script>
-    const chatContainer = document.querySelector('#chat_container');
-    const form = document.querySelector('#chat_form');
-   
-{% if reply %}
- // Check if speech synthesis is supported
-    if ('speechSynthesis' in window) {
-        // Create a new SpeechSynthesisUtterance instance
-        const msg = new SpeechSynthesisUtterance();
-        
-        // Set the text to be spoken as the reply obtained from Django
-        msg.text = "{{ reply }}"; // Use Django template variable
-        
-        // Speak the text
-        window.speechSynthesis.speak(msg);
-    } else {
-        // Speech Synthesis Not Supported 
-        console.error("Sorry, your browser doesn't support text to speech!");
+    function formatMessage(text) {
+        text = text
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\*(.*?)\*/g, '<em>$1</em>')
+            .replace(/`([^`\n]+)`/g, '<code>$1</code>')
+            .replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>')
+            .replace(/^\s*>\s?(.*)$/gm, '<blockquote>$1</blockquote>')
+            .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" style="max-width:100vw;border-radius:8px;">');
+        // Give every code block a unique ID for copy
+        let blockIdx = 0;
+        text = text.replace(/```(\w+)?\n?([\s\S]*?)```/g, function(match, lang, code){
+            blockIdx++;
+            const blockId = `codeblock-${Date.now()}-${Math.floor(Math.random()*1000)}-${blockIdx}`;
+            return `<pre class="prism-block" id="${blockId}"><code class="language-${lang||'none'}">${escapeHtml(code)}</code>
+                <button class="copy-btn" data-blockid="${blockId}" title="Copy"><span>⧉</span> Copy</button></pre>`;
+        });
+        return text;
     }
-{% endif %}
-{% if prompt %}
-        // Display user's input in the chat
-        chatContainer.innerHTML += `
-            <div class="wrapper user">
-                <div class="chat">
-                    <div class="profile">
-                        <img src="{% static 'imgs/user.svg' %}" alt="User">
-                    </div>
-                    <div class="message">{{prompt}}</div>
-                </div>
-            </div>
-        `;
+    function escapeHtml(text) {
+        return text.replace(/[&<>"']/g, function(m) {
+            return ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            })[m];
+        });
+    }
+    const chatContainer = document.getElementById('chat_container');
+    const form = document.getElementById('chat_form');
+    let promptInput = document.getElementById('prompt');
+    let lastUserPrompt = "";
+    let requeryText = null;
 
-        // Update the chatContainer with bot's response
-        chatContainer.innerHTML += `
-            <div class="wrapper ai">
-                <div class="chat">
-                    <div class="profile">
-                        <img src="{% static 'imgs/bot.svg' %}" alt="Bot">
-                    </div>
-                    <div class="message">{{reply}}</div>
-                </div>
-            </div>
+    function switchToTextareaIfNeeded() {
+        if (promptInput.tagName.toLowerCase() === 'textarea') return;
+        let testSpan = document.createElement('span');
+        testSpan.style.visibility = 'hidden';
+        testSpan.style.position = 'absolute';
+        testSpan.style.fontFamily = window.getComputedStyle(promptInput).fontFamily;
+        testSpan.style.fontSize = window.getComputedStyle(promptInput).fontSize;
+        testSpan.style.whiteSpace = 'pre';
+        testSpan.textContent = promptInput.value;
+        document.body.appendChild(testSpan);
+        const inputWidth = promptInput.offsetWidth - 30;
+        if (testSpan.offsetWidth > inputWidth || promptInput.value.indexOf('\n') !== -1) {
+            let textarea = document.createElement('textarea');
+            textarea.id = 'prompt';
+            textarea.name = 'prompt';
+            textarea.className = promptInput.className;
+            textarea.setAttribute('maxlength', promptInput.getAttribute('maxlength'));
+            textarea.setAttribute('placeholder', promptInput.getAttribute('placeholder'));
+            textarea.setAttribute('autocomplete', promptInput.getAttribute('autocomplete'));
+            textarea.value = promptInput.value;
+            promptInput.parentNode.replaceChild(textarea, promptInput);
+            promptInput = textarea;
+            promptInput.focus();
+            promptInput.addEventListener('input', autoResizeTextarea);
+        }
+        document.body.removeChild(testSpan);
+    }
+    function autoResizeTextarea() {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 140) + 'px';
+    }
+    if (promptInput.tagName.toLowerCase() === 'textarea') {
+        promptInput.addEventListener('input', autoResizeTextarea);
+    }
+    promptInput.addEventListener('input', switchToTextareaIfNeeded);
+
+    function typeMessage(element, text, callback) {
+        let i = 0;
+        function typing() {
+            if (i <= text.length) {
+                element.innerHTML = `<div class="ai-header"><img src="{% static 'imgs/bot.svg' %}" alt="AI" class="ai-icon">G CHAT</div>`
+                  + formatMessage(text.slice(0,i)) + '<span class="typing"></span>';
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+                i++;
+                setTimeout(typing, 8 + Math.random() * 9);
+            } else {
+                element.innerHTML = `<div class="ai-header"><img src="{% static 'imgs/bot.svg' %}" alt="AI" class="ai-icon">AI Response</div>`
+                  + formatMessage(text);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+                Prism.highlightAll();
+                if (callback) callback();
+                attachCopyHandlers(element);
+            }
+        }
+        typing();
+    }
+    function addMessage(role, text, typing=false, editable=false) {
+        const row = document.createElement('div');
+        row.className = `message-row ${role}`;
+        let iconSrc = role === 'ai' ? "{% static 'imgs/bot.svg' %}" : "{% static 'imgs/user.svg' %}";
+        row.innerHTML = `
+            <div class="profile-icon"><img src="${iconSrc}" alt="${role}"></div>
+            <div class="message-content"></div>
         `;
+        chatContainer.appendChild(row);
+        const messageElem = row.querySelector('.message-content');
+        if (role === 'ai') {
+            if (typing) typeMessage(messageElem, text, () => attachActions(row, role, text, editable));
+            else {
+                messageElem.innerHTML = `<div class="ai-header"><img src="{% static 'imgs/bot.svg' %}" alt="AI" class="ai-icon">AI Response</div>` +
+                  formatMessage(text);
+                Prism.highlightAll();
+                attachActions(row, role, text, editable);
+                attachCopyHandlers(messageElem);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+        } else {
+            messageElem.innerHTML = formatMessage(text);
+            attachActions(row, role, text, editable);
+            attachCopyHandlers(messageElem);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+    }
+    function attachActions(row, role, text, editable=false) {
+        if (role === "ai") {
+            let actions = document.createElement('div');
+            actions.className = "actions-row";
+            let speakBtn = document.createElement('button');
+            speakBtn.className = "speak-btn";
+            speakBtn.innerText = "🔈 Speak";
+            speakBtn.onclick = () => speak(text);
+            actions.appendChild(speakBtn);
+            let requeryBtn = document.createElement('button');
+            requeryBtn.className = "requery-btn";
+            requeryBtn.innerText = "↻ Requery";
+            requeryBtn.onclick = () => {
+                if (lastUserPrompt) {
+                    requeryText = lastUserPrompt;
+                    submitPrompt(requeryText, true);
+                }
+            };
+            actions.appendChild(requeryBtn);
+            let editBtn = document.createElement('button');
+            editBtn.className = "edit-btn";
+            editBtn.innerText = "✎ Edit";
+            editBtn.onclick = () => {
+                promptInput.value = lastUserPrompt;
+                promptInput.focus();
+            };
+            actions.appendChild(editBtn);
+            row.querySelector('.message-content').appendChild(actions);
+        }
+    }
+    // FIXED: Copy full code block, not just innerText
+    function attachCopyHandlers(messageElem) {
+    const copyButtons = messageElem.querySelectorAll('.copy-btn');
+    copyButtons.forEach(btn => {
+        btn.onclick = function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const blockId = btn.getAttribute('data-blockid');
+            const pre = document.getElementById(blockId);
+            if (pre) {
+                let codeEl = pre.querySelector('code');
+                let code = "";
+                // If Prism splits lines into spans, get all lines and join them
+                if (codeEl) {
+                    if (codeEl.childNodes.length > 0) {
+                        // If there are child nodes, get raw text recursively
+                        code = Array.from(codeEl.childNodes).map(n => {
+                            if (n.nodeType === 3) return n.textContent;
+                            if (n.nodeType === 1) return n.innerText || n.textContent;
+                            return "";
+                        }).join("");
+                    } else {
+                        code = codeEl.textContent;
+                    }
+                }
+                navigator.clipboard.writeText(code);
+                btn.classList.add('copied');
+                btn.innerHTML = "<span>✔</span> Copied!";
+                setTimeout(() => {
+                    btn.classList.remove('copied');
+                    btn.innerHTML = "<span>⧉</span> Copy";
+                }, 1500);
+            }
+        };
+    });
+}
+    function speak(text) {
+        if ('speechSynthesis' in window) {
+            const msg = new SpeechSynthesisUtterance();
+            msg.text = text;
+            window.speechSynthesis.speak(msg);
+        }
+    }
+    function submitPrompt(prompt, fromRequery=false) {
+        lastUserPrompt = prompt;
+        addMessage('user', prompt, false, true);
+        promptInput.value = '';
+        fetch("{% url 'index' %}", {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": "{{ csrf_token }}",
+                "X-Requested-With": "XMLHttpRequest",
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: "prompt=" + encodeURIComponent(prompt)
+        })
+        .then(resp => resp.json())
+        .then(data => {
+            if (data.reply) {
+                addMessage('ai', data.reply, true);
+            }
+        })
+        .catch(err => {
+            addMessage('ai', "Sorry, something went wrong! Try again.");
+        });
+    }
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const prompt = promptInput.value.trim();
+        if (!prompt) return;
+        submitPrompt(prompt, false);
+    });
+    // Voice input: mic button and recording UI
+    let recognizing = false;
+    let recognition;
+    const micBtn = document.getElementById('micBtn');
+    const micIcon = document.getElementById('micIcon');
+    const micDefault = "{% static 'imgs/mic.svg' %}";
+    const micRecording = "{% static 'imgs/mic-recording.svg' %}";
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = true;
+        recognition.lang = 'en-US';
+        recognition.onstart = function() {
+            recognizing = true;
+            micBtn.classList.add('recording');
+            micIcon.src = micRecording;
+        };
+        recognition.onend = function() {
+            recognizing = false;
+            micBtn.classList.remove('recording');
+            micIcon.src = micDefault;
+        };
+        let finalTranscript = '';
+        recognition.onresult = function(event) {
+            let interimTranscript = '';
+            for (let i = event.resultIndex; i < event.results.length; ++i) {
+                let transcript = event.results[i][0].transcript;
+                if (event.results[i].isFinal) {
+                    finalTranscript += transcript;
+                } else {
+                    interimTranscript += transcript;
+                }
+            }
+            let combined = (finalTranscript + interimTranscript).replace(/[\n\r]/g, '');
+            if (combined.length > promptInput.maxLength) {
+                combined = combined.slice(0, promptInput.maxLength);
+            }
+            promptInput.value = combined;
+            switchToTextareaIfNeeded();
+        };
+        micBtn.addEventListener('click', function() {
+            if (recognizing) {
+                recognition.stop();
+                finalTranscript = '';
+                return;
+            }
+            finalTranscript = '';
+            recognition.start();
+        });
+    } else {
+        micBtn.disabled = true;
+        micBtn.title = "Voice input not supported";
+    }
+    // Always scroll to bottom when chat changes
+    function scrollChatToBottom() {
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+    window.addEventListener('resize', scrollChatToBottom);
+    const observer = new MutationObserver(scrollChatToBottom);
+    observer.observe(chatContainer, { childList: true, subtree: true });
+
+    {% if reply %}
+        lastUserPrompt = `{{ prompt|escapejs }}`;
+        addMessage('user', lastUserPrompt, false, true);
+        addMessage('ai', `{{ reply|escapejs }}`, true);
+        scrollChatToBottom();
     {% endif %}
 </script>
-<h4 style="color:white; font-family:Arial, Helvetica, sans-serif; background-color: rgb(27, 20, 230); text-align: center; padding-top: 4px;">Developed by : GHANSHYAM VAJA</h4>
 </body>
 </html>

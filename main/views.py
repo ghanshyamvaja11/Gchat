@@ -1,69 +1,34 @@
-from django.shortcuts import render
-from django.http import HttpResponse
-import google.generativeai as genai
-import re
 import os
+from django.shortcuts import render
+from django.http import JsonResponse
 from dotenv import load_dotenv
+
+# Correct import!
+import google.generativeai as genai
+from google.generativeai import types
+
+load_dotenv()
+
+
+def ask_gemini(prompt):
+    # API key from env
+    api_key = os.getenv("GEMINI_API_KEY")
+    genai.configure(api_key=api_key)
+    response = genai.GenerativeModel("gemini-2.5-flash").generate_content(
+        prompt,
+        generation_config=types.GenerationConfig(temperature=0.1)
+    )
+    return response.text
 
 
 def index(request):
     if request.method == 'POST':
-        load_dotenv()
-        API_KEY = os.getenv('API_KEY')
-        genai.configure(api_key=API_KEY)
-
-        # Set up the model
-        generation_config = {
-            "temperature": 0.9,
-            "top_p": 1,
-            "top_k": 1,
-            "max_output_tokens": 2048,
-        }
-
-        safety_settings = [
-            {
-                "category": "HARM_CATEGORY_HARASSMENT",
-                "threshold": "BLOCK_MEDIUM_AND_ABOVE"
-            },
-            {
-                "category": "HARM_CATEGORY_HATE_SPEECH",
-                "threshold": "BLOCK_MEDIUM_AND_ABOVE"
-            },
-            {
-                "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-                "threshold": "BLOCK_MEDIUM_AND_ABOVE"
-            },
-            {
-                "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
-                "threshold": "BLOCK_MEDIUM_AND_ABOVE"
-            },
-        ]
-
-        model = genai.GenerativeModel(model_name="gemini-1.0-pro",
-                                      generation_config=generation_config,
-                                      safety_settings=safety_settings)
-
-        convo = model.start_chat(history=[
-        ])
-
-        convo.send_message(request.POST.get('prompt'))
-        text = request.POST.get('prompt').lower()
-        prompt = request.POST.get('prompt')
-        reply = "Hi, I am G Chat."
-        if "who are you" in text:
-            return render(request, 'index.html', {'prompt': prompt, 'reply': reply})
-
-        elif "what is your name" in text or "your name" in text:
-            reply = "My name is G Chat."
-            return render(request, 'index.html', {'prompt': prompt, 'reply': reply})
-        
-        elif "who created you" in text or "who developed you" in text:
-            reply="Ghanshyam Vaja Developed Me."
-            return render(request, 'index.html', {'prompt': prompt, 'reply': reply})
-        
-        else:
-            pattern = r'[^\w\s]'
-            text = convo.last.text
-            reply = re.sub(pattern, '', text)
-            return render(request, 'index.html', {'prompt': prompt, 'reply': reply})
+        prompt = request.POST.get('prompt', '')
+        try:
+            reply = ask_gemini(prompt)
+        except Exception as ex:
+            reply = f"Error: {ex}"
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'reply': reply, 'prompt': prompt})
+        return render(request, "index.html", {'reply': reply, 'prompt': prompt})
     return render(request, "index.html")
