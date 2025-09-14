@@ -5,6 +5,8 @@
     <meta charset="UTF-8" />
     <title>G Chat</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+     <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="{% static 'imgs/bot.svg' %}">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Fira+Mono:wght@400;700&display=swap" rel="stylesheet">
     <!-- PrismJS for syntax highlighting -->
@@ -157,22 +159,22 @@
             height: calc(100vh - 56px - 48px);
         }
         #chat_container {
-            flex: 1 1 auto;
-            width: 100vw;
-            max-width: 100vw;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            background: var(--chat-bg);
-            box-sizing: border-box;
-            overflow-y: auto;
-            overflow-x: hidden;
-            padding: 20px 18px 0 18px;
-            min-height: 0;
-            position: relative;
-            height: 100%;
-        }
+    flex: 1 1 auto;
+    width: 100vw;
+    max-width: 100vw;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    background: var(--chat-bg);
+    box-sizing: border-box;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 20px 18px 80px 18px; /* bottom padding for input bar */
+    min-height: 0;
+    position: relative;
+    /* height: 90%; <-- remove this */
+}
         .message-row {
             width: 100%;
             margin: 0;
@@ -478,7 +480,7 @@
             <button type="submit" class="send-btn" title="Send"><img src="{% static 'imgs/send.svg' %}" alt="send" /></button>
         </div>
         <footer>
-            <span style="color: white;">Sometimes incorrect, check facts.</span><br>
+            <span style="color: white; font-size: 15px;">Sometimes incorrect, check facts.</span><br>
     © {{ now|date:"Y" }} Developed by <a href="https://codminds.com" style="text-decoration: none; color:#00cfff;">CodMinds.com</a>
 </footer>
     </form>
