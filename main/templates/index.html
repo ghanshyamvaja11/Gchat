@@ -49,6 +49,9 @@
             background: var(--chat-bg);
             border-bottom: 1px solid #181a1f;
             box-shadow: 0 2px 8px 0 rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
         .logo-bar {
             font-size: 1.7rem;
@@ -65,6 +68,73 @@
             height: 38px;
             margin-right: 15px;
         }
+        .auth-buttons { display: flex; gap: 12px; padding-right: 20px; align-items: center;}
+        .auth-btn { padding: 7px 20px; font-size: 1rem; font-family: var(--font-main); border-radius: 7px; border: 1px solid var(--primary); background: var(--chat-bg); color: var(--primary); cursor: pointer; transition: 0.25s;}
+        .auth-btn:hover { background: var(--primary); color: #232526; border: 1px solid var(--primary);}
+        .username-box { color: var(--secondary); font-weight: 700; font-size: 1rem; margin-right: 18px; background: #232526; border-radius: 8px; padding: 6px 16px; display: flex; align-items: center; gap: 12px;}
+        .logout-btn { padding: 6px 15px; font-size: 1rem; font-family: var(--font-main); border-radius: 7px; border: 1px solid var(--secondary); background: var(--chat-bg); color: var(--secondary); cursor: pointer;}
+        .logout-btn:hover { background: var(--secondary); color: #232526;}
+        .popup-bg { position: fixed; top:0; left:0; width:100vw; height:100vh; background: rgba(11,20,40,0.82); z-index: 9999; display: none; align-items: center; justify-content: center; }
+        .popup-bg.active { display: flex; }
+        .popup-form { background: var(--chat-bg); border-radius: 17px; max-width: 370px; width: 94vw; padding: 34px 32px 32px 32px; box-shadow: 0 16px 36px 0 rgba(0,0,0,0.32); position: relative; color: #fff; border: 2.5px solid var(--primary);}
+        .popup-form h2 { font-size: 1.5rem; margin: 0 0 20px 0; font-weight: 700; letter-spacing: 1px; text-align: center; color: var(--primary); text-shadow: 0 2px 10px #232526;}
+        .popup-form label { font-size: 1.08rem; margin-bottom: 6px; display: block; color: #ffe066; font-weight: 600; margin-top: 7px;}
+        .popup-form .password-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .popup-form input[type="text"],
+        .popup-form input[type="password"],
+        .popup-form input[type="email"] {
+            width: 100%;
+            padding: 11px 13px;
+            border-radius: 8px;
+            border: 1.5px solid var(--primary);
+            background: #191d22;
+            color: #fff;
+            font-size: 1.08rem;
+            font-family: var(--font-main);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.09);
+            outline: none;
+            transition: border 0.18s;
+        }
+        .popup-form input:focus { border: 1.5px solid var(--secondary); background: #232526;}
+        .password-eye-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            z-index: 2;
+            padding: 0;
+            margin: 0;
+            height: 28px;
+            display: flex;
+            align-items: center;
+        }
+        .password-eye-btn svg {
+            width: 23px;
+            height: 23px;
+            fill: var(--secondary);
+            transition: fill 0.2s;
+        }
+        .password-eye-btn:active svg, .password-eye-btn:focus svg {
+            fill: var(--primary);
+        }
+        .remember-row { display: flex; align-items: center; gap: 7px; margin-bottom: 13px;}
+        .popup-form input[type="checkbox"] { accent-color: var(--primary); width: 20px; height: 20px;}
+        .remember-label { color: var(--secondary); font-size: 1.03rem; font-weight: 600; cursor: pointer;}
+        .popup-form button[type="submit"] { width: 100%; padding: 13px 0; border-radius: 8px; background: linear-gradient(90deg, var(--primary) 60%, var(--secondary) 100%); color: #232526; border: none; font-size: 1.09rem; font-weight: 700; cursor: pointer; margin-top: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.14); transition: background 0.18s;}
+        .popup-form button[type="submit"]:hover { background: linear-gradient(90deg, var(--secondary) 60%, var(--primary) 100%);}
+        .popup-close { position: absolute; top: 16px; right: 20px; background: none; border: none; color: var(--secondary); font-size: 2rem; font-weight: 900; cursor: pointer; font-family: var(--font-main); z-index: 2; transition: color 0.18s;}
+        .popup-close:hover { color: var(--primary); text-shadow: 0 1px 8px #ffe066;}
+        .popup-form .popup-extra { font-size: 1.03rem; margin-top: 20px; text-align: center; color: #ffe066; font-weight: 500;}
+        .popup-form .popup-extra a { color: var(--primary); text-decoration: underline; cursor: pointer; font-weight: 700;}
+        .popup-form .popup-extra a:hover { color: var(--secondary);}
         main {
             flex: 1;
             width: 100vw;
@@ -83,8 +153,8 @@
             width: 100vw;
             min-height: 0;
             position: relative;
-            padding-bottom: 70px; /* Room for input bar */
-            height: calc(100vh - 56px - 48px); /* header + footer approx, adjust as needed */
+            padding-bottom: 70px;
+            height: calc(100vh - 56px - 48px);
         }
         #chat_container {
             flex: 1 1 auto;
@@ -98,10 +168,10 @@
             box-sizing: border-box;
             overflow-y: auto;
             overflow-x: hidden;
-            padding: 20px 18px 0 18px; /* Space both sides */
+            padding: 20px 18px 0 18px;
             min-height: 0;
             position: relative;
-            height: 100%; /* fix: force chat area height */
+            height: 100%;
         }
         .message-row {
             width: 100%;
@@ -379,6 +449,20 @@
         <img src="{% static 'imgs/bot.svg' %}" alt="G Chat">
         G Chat
     </div>
+    <div class="auth-buttons">
+        {% if user.is_authenticated %}
+            <span class="username-box">
+                {{ user.username }}
+                <form method="post" action="{% url 'logout' %}" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="logout-btn">Logout</button>
+                </form>
+            </span>
+        {% else %}
+            <button class="auth-btn" id="loginBtn">Login</button>
+            <button class="auth-btn" id="signupBtn">Sign Up</button>
+        {% endif %}
+    </div>
 </header>
 <main>
     <div class="chat-outer">
@@ -394,28 +478,123 @@
             <button type="submit" class="send-btn" title="Send"><img src="{% static 'imgs/send.svg' %}" alt="send" /></button>
         </div>
     </form>
+    <!-- Login Popup -->
+    <div id="loginPopup" class="popup-bg">
+        <form class="popup-form" method="post" action="{% url 'login' %}">
+            {% csrf_token %}
+            <button class="popup-close" type="button" onclick="closePopup('loginPopup')">&times;</button>
+            <h2>Login</h2>
+            <label for="login_username">Username</label>
+            <input type="text" name="username" id="login_username" required autocomplete="username"/>
+            <label for="login_password">Password</label>
+            <div class="password-wrapper">
+                <input type="password" name="password" id="login_password" required autocomplete="current-password"/>
+                <button type="button" tabindex="-1" class="password-eye-btn" onclick="togglePassword('login_password', this)" aria-label="Show password">
+                    <span class="eye-open" style="display:inline">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                            <path d="M12 5c-7 0-9 7-9 7s2 7 9 7 9-7 9-7-2-7-9-7zm0 12c-4.418 0-7.053-3.253-7.781-5 .728-1.747 3.363-5 7.781-5 4.418 0 7.053 3.253 7.781 5-.728 1.747-3.363 5-7.781 5zm0-8a3 3 0 100 6 3 3 0 000-6zm0 5a2 2 0 110-4 2 2 0 010 4z"/>
+                        </svg>
+                    </span>
+                    <span class="eye-closed" style="display:none">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                            <path d="M12 7c-5.514 0-8.606 5.119-8.93 5.679a1.002 1.002 0 000 1.063c.324.561 3.416 5.679 8.93 5.679 5.513 0 8.606-5.118 8.93-5.679a1 1 0 000-1.063c-.324-.56-3.417-5.679-8.93-5.679zm0 10c-4.418 0-7.053-3.253-7.781-5 .728-1.747 3.363-5 7.781-5 4.418 0 7.053 3.253 7.781 5-.728 1.747-3.363 5-7.781 5zm-5.293-8.707a1 1 0 111.414 1.414l-1.414-1.414zm10.586 0a1 1 0 11-1.414 1.414l1.414-1.414z"/>
+                        </svg>
+                    </span>
+                </button>
+            </div>
+            <div class="remember-row">
+                <input type="checkbox" name="remember_me" id="remember_me" />
+                <label for="remember_me" class="remember-label">Remember me for 30 days</label>
+            </div>
+            <button type="submit">Login</button>
+            <div class="popup-extra">
+                Don't have an account? <a onclick="switchPopup('loginPopup','signupPopup')">Sign Up</a>
+            </div>
+        </form>
+    </div>
+    <!-- Signup Popup -->
+    <div id="signupPopup" class="popup-bg">
+        <form class="popup-form" method="post" action="{% url 'signup' %}">
+            {% csrf_token %}
+            <button class="popup-close" type="button" onclick="closePopup('signupPopup')">&times;</button>
+            <h2>Sign Up</h2>
+            <label for="signup_username">Username</label>
+            <input type="text" name="username" id="signup_username" required autocomplete="username"/>
+            <label for="signup_email">Email</label>
+            <input type="email" name="email" id="signup_email" required autocomplete="email"/>
+            <label for="signup_password">Password</label>
+            <div class="password-wrapper">
+                <input type="password" name="password" id="signup_password" required autocomplete="new-password"/>
+                <button type="button" tabindex="-1" class="password-eye-btn" onclick="togglePassword('signup_password', this)" aria-label="Show password">
+                    <span class="eye-open" style="display:inline">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                            <path d="M12 5c-7 0-9 7-9 7s2 7 9 7 9-7 9-7-2-7-9-7zm0 12c-4.418 0-7.053-3.253-7.781-5 .728-1.747 3.363-5 7.781-5 4.418 0 7.053 3.253 7.781 5-.728 1.747-3.363 5-7.781 5zm0-8a3 3 0 100 6 3 3 0 000-6zm0 5a2 2 0 110-4 2 2 0 010 4z"/>
+                        </svg>
+                    </span>
+                    <span class="eye-closed" style="display:none">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                            <path d="M12 7c-5.514 0-8.606 5.119-8.93 5.679a1.002 1.002 0 000 1.063c.324.561 3.416 5.679 8.93 5.679 5.513 0 8.606-5.118 8.93-5.679a1 1 0 000-1.063c-.324-.56-3.417-5.679-8.93-5.679zm0 10c-4.418 0-7.053-3.253-7.781-5 .728-1.747 3.363-5 7.781-5 4.418 0 7.053 3.253 7.781 5-.728 1.747-3.363 5-7.781 5zm-5.293-8.707a1 1 0 111.414 1.414l-1.414-1.414zm10.586 0a1 1 0 11-1.414 1.414l1.414-1.414z"/>
+                        </svg>
+                    </span>
+                </button>
+            </div>
+            <button type="submit">Sign Up</button>
+            <div class="popup-extra">
+                Already have an account? <a onclick="switchPopup('signupPopup','loginPopup')">Login</a>
+            </div>
+        </form>
+    </div>
 </main>
 <footer>
     © {{ now|date:"Y" }} Developed by GHANSHYAM VAJA
 </footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
 <script>
+    // Popup logic
+    function openPopup(id) { document.getElementById(id).classList.add('active'); }
+    function closePopup(id) { document.getElementById(id).classList.remove('active'); }
+    function switchPopup(closeId, openId) { closePopup(closeId); openPopup(openId); }
+    if(document.getElementById('loginBtn'))
+        document.getElementById('loginBtn').onclick = function(){ openPopup('loginPopup'); };
+    if(document.getElementById('signupBtn'))
+        document.getElementById('signupBtn').onclick = function(){ openPopup('signupPopup'); };
+    document.querySelectorAll('.popup-bg').forEach(bg => {
+        bg.addEventListener('click', function(e){
+            if(e.target === bg) closePopup(bg.id);
+        });
+    });
+
+    // Password view toggle logic with professional SVG eye icons
+    function togglePassword(inputId, btn) {
+        var input = document.getElementById(inputId);
+        var eyeOpen = btn.querySelector('.eye-open');
+        var eyeClosed = btn.querySelector('.eye-closed');
+        if (input.type === "password") {
+            input.type = "text";
+            eyeOpen.style.display = "none";
+            eyeClosed.style.display = "inline";
+        } else {
+            input.type = "password";
+            eyeOpen.style.display = "inline";
+            eyeClosed.style.display = "none";
+        }
+    }
+
     function formatMessage(text) {
+        let blockIdx = 0;
         text = text
             .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
             .replace(/\*(.*?)\*/g, '<em>$1</em>')
             .replace(/`([^`\n]+)`/g, '<code>$1</code>')
             .replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>')
             .replace(/^\s*>\s?(.*)$/gm, '<blockquote>$1</blockquote>')
-            .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" style="max-width:100vw;border-radius:8px;">');
-        // Give every code block a unique ID for copy
-        let blockIdx = 0;
-        text = text.replace(/```(\w+)?\n?([\s\S]*?)```/g, function(match, lang, code){
-            blockIdx++;
-            const blockId = `codeblock-${Date.now()}-${Math.floor(Math.random()*1000)}-${blockIdx}`;
-            return `<pre class="prism-block" id="${blockId}"><code class="language-${lang||'none'}">${escapeHtml(code)}</code>
-                <button class="copy-btn" data-blockid="${blockId}" title="Copy"><span>⧉</span> Copy</button></pre>`;
-        });
+            .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" style="max-width:100vw;border-radius:8px;">')
+            .replace(/```(\w+)?\n?([\s\S]*?)```/g, function(match, lang, code){
+                blockIdx++;
+                const blockId = `codeblock-${Date.now()}-${Math.floor(Math.random()*1000)}-${blockIdx}`;
+                return `<pre class="prism-block" id="${blockId}"><code class="language-${lang||'none'}">${escapeHtml(code)}</code>
+                    <button class="copy-btn" data-blockid="${blockId}" title="Copy"><span>⧉</span> Copy</button></pre>`;
+            });
         return text;
     }
     function escapeHtml(text) {
@@ -548,42 +727,31 @@
             row.querySelector('.message-content').appendChild(actions);
         }
     }
-    // FIXED: Copy full code block, not just innerText
     function attachCopyHandlers(messageElem) {
-    const copyButtons = messageElem.querySelectorAll('.copy-btn');
-    copyButtons.forEach(btn => {
-        btn.onclick = function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            const blockId = btn.getAttribute('data-blockid');
-            const pre = document.getElementById(blockId);
-            if (pre) {
-                let codeEl = pre.querySelector('code');
-                let code = "";
-                // If Prism splits lines into spans, get all lines and join them
-                if (codeEl) {
-                    if (codeEl.childNodes.length > 0) {
-                        // If there are child nodes, get raw text recursively
-                        code = Array.from(codeEl.childNodes).map(n => {
-                            if (n.nodeType === 3) return n.textContent;
-                            if (n.nodeType === 1) return n.innerText || n.textContent;
-                            return "";
-                        }).join("");
-                    } else {
+        const copyButtons = messageElem.querySelectorAll('.copy-btn');
+        copyButtons.forEach(btn => {
+            btn.onclick = function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                const blockId = btn.getAttribute('data-blockid');
+                const pre = document.getElementById(blockId);
+                if (pre) {
+                    let codeEl = pre.querySelector('code');
+                    let code = "";
+                    if (codeEl) {
                         code = codeEl.textContent;
                     }
+                    navigator.clipboard.writeText(code);
+                    btn.classList.add('copied');
+                    btn.innerHTML = "<span>✔</span> Copied!";
+                    setTimeout(() => {
+                        btn.classList.remove('copied');
+                        btn.innerHTML = "<span>⧉</span> Copy";
+                    }, 1500);
                 }
-                navigator.clipboard.writeText(code);
-                btn.classList.add('copied');
-                btn.innerHTML = "<span>✔</span> Copied!";
-                setTimeout(() => {
-                    btn.classList.remove('copied');
-                    btn.innerHTML = "<span>⧉</span> Copy";
-                }, 1500);
-            }
-        };
-    });
-}
+            };
+        });
+    }
     function speak(text) {
         if ('speechSynthesis' in window) {
             const msg = new SpeechSynthesisUtterance();
@@ -620,7 +788,6 @@
         if (!prompt) return;
         submitPrompt(prompt, false);
     });
-    // Voice input: mic button and recording UI
     let recognizing = false;
     let recognition;
     const micBtn = document.getElementById('micBtn');
@@ -674,7 +841,6 @@
         micBtn.disabled = true;
         micBtn.title = "Voice input not supported";
     }
-    // Always scroll to bottom when chat changes
     function scrollChatToBottom() {
         chatContainer.scrollTop = chatContainer.scrollHeight;
     }
