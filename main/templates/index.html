@@ -88,7 +88,7 @@
         .popup-form input[type="text"],
         .popup-form input[type="password"],
         .popup-form input[type="email"] {
-            width: 100%;
+            width: 92%;
             padding: 11px 13px;
             border-radius: 8px;
             border: 1.5px solid var(--primary);
@@ -477,6 +477,10 @@
             <input type="text" name="prompt" id="prompt" class="input-prompt" maxlength="240" placeholder="Type your message..." autocomplete="off" />
             <button type="submit" class="send-btn" title="Send"><img src="{% static 'imgs/send.svg' %}" alt="send" /></button>
         </div>
+        <footer>
+            <span style="color: white;">Sometimes incorrect, check facts.</span><br>
+    © {{ now|date:"Y" }} Developed by <a href="https://codminds.com" style="text-decoration: none; color:#00cfff;">CodMinds.com</a>
+</footer>
     </form>
     <!-- Login Popup -->
     <div id="loginPopup" class="popup-bg">
@@ -545,9 +549,6 @@
         </form>
     </div>
 </main>
-<footer>
-    © {{ now|date:"Y" }} Developed by GHANSHYAM VAJA
-</footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
 <script>
     // Popup logic
@@ -660,7 +661,7 @@
                 i++;
                 setTimeout(typing, 8 + Math.random() * 9);
             } else {
-                element.innerHTML = `<div class="ai-header"><img src="{% static 'imgs/bot.svg' %}" alt="AI" class="ai-icon">AI Response</div>`
+                element.innerHTML = `<div class="ai-header"><img src="{% static 'imgs/bot.svg' %}" alt="AI" class="ai-icon">G CHAT</div>`
                   + formatMessage(text);
                 chatContainer.scrollTop = chatContainer.scrollHeight;
                 Prism.highlightAll();
