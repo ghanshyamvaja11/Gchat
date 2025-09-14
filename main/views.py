@@ -13,7 +13,7 @@ from django.contrib.auth import get_user_model
 from dotenv import load_dotenv
 import google.generativeai as genai
 from google.generativeai import types
-
+import re
 load_dotenv()
 
 User = get_user_model()
@@ -32,18 +32,51 @@ def ask_gemini(prompt):
 
 
 def index(request):
+    # Enhanced common questions with patterns
+    common_patterns = [
+        (re.compile(r"\bwho\s+are\s+you\b", re.I),
+         "I am G Chat, your AI chat assistant."),
+        (re.compile(r"\bwho\s+(developed|made|created)\s+you\b", re.I),
+         "I was developed by Ghanshyam Vaja, founder of CodMinds.com."),
+        (re.compile(r"\bwho\s+is\s+(your\s+)?founder\b", re.I),
+         "Ghanshyam Vaja is my founder and the creator of CodMinds.com."),
+        (re.compile(r"\bwhat\s+is\s+codminds(\.com)?\b", re.I),
+         "CodMinds is a web & software development startup founded by Ghanshyam Vaja."),
+        (re.compile(r"\bwho\s+is\s+ghanshyam\s+vaja\b", re.I),
+         "Ghanshyam Vaja is a developer, entrepreneur and founder of CodMinds.com."),
+        (re.compile(r"\bhello\b", re.I), "Hello! How can I assist you today?"),
+        (re.compile(r"\bhi\b", re.I), "Hi! How can I help you?"),
+        (re.compile(r"\byour\s+name\b", re.I), "My name is G Chat."),
+        (re.compile(r"\bwhat\s+can\s+you\s+do\b", re.I),
+         "I can answer questions, help with coding and much more. Just ask!"),
+        # Add more patterns as needed
+    ]
+
+    def get_common_answer(prompt):
+        p = prompt.strip().lower()
+        for pattern, answer in common_patterns:
+            if pattern.search(p):
+                return answer
+        return None
+
     if request.method == 'POST':
         allowed, block_message = request_limit_check(request)
         prompt = request.POST.get('prompt', '')
         if not allowed:
-            # Blocked: show block message as reply
             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
                 return JsonResponse({'reply': block_message, 'prompt': prompt, 'blocked': True})
             return render(request, "index.html", {'reply': block_message, 'prompt': prompt, 'blocked': True})
-        try:
-            reply = ask_gemini(prompt)
-        except Exception as ex:
-            reply = f"Error: {ex}"
+
+        # Pattern matching for common questions
+        faq_reply = get_common_answer(prompt)
+        if faq_reply:
+            reply = faq_reply
+        else:
+            try:
+                reply = ask_gemini(prompt)
+            except Exception as ex:
+                reply = f"Error: {ex}"
+
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             return JsonResponse({'reply': reply, 'prompt': prompt})
         return render(request, "index.html", {'reply': reply, 'prompt': prompt})
