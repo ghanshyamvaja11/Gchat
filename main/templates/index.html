@@ -46,30 +46,33 @@
             width: 100vw;
             overflow: hidden;
         }
-        header {
-            width: 100vw;
-            background: var(--chat-bg);
-            border-bottom: 1px solid #181a1f;
-            box-shadow: 0 2px 8px 0 rgba(0,0,0,0.08);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .logo-bar {
-            font-size: 1.7rem;
-            font-weight: 700;
-            color: var(--primary);
-            letter-spacing: 2px;
-            display: flex;
-            align-items: center;
-            height: 56px;
-            padding-left: 24px;
-        }
-        .logo-bar img {
-            width: 38px;
-            height: 38px;
-            margin-right: 15px;
-        }
+       header {
+    width: 100vw;
+    background: var(--chat-bg);
+    border-bottom: 1px solid #181a1f;
+    box-shadow: 0 2px 8px 0 rgba(0,0,0,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 96px; /* Increased height for a bigger header */
+}
+
+.logo-bar {
+    font-size: 2.2rem;      /* Increased font size for the app name */
+    font-weight: 700;
+    color: var(--primary);
+    letter-spacing: 2px;
+    display: flex;
+    align-items: center;
+    height: 96px;           /* Match header height for vertical centering */
+    padding-left: 38px;     /* More left padding for a larger feel */
+}
+
+.logo-bar img {
+    width: 70px;            /* Make logo larger */
+    height: 70px;
+    margin-right: 22px;     /* More space between logo and text */
+}
         .auth-buttons { display: flex; gap: 12px; padding-right: 20px; align-items: center;}
         .auth-btn { padding: 7px 20px; font-size: 1rem; font-family: var(--font-main); border-radius: 7px; border: 1px solid var(--primary); background: var(--chat-bg); color: var(--primary); cursor: pointer; transition: 0.25s;}
         .auth-btn:hover { background: var(--primary); color: #232526; border: 1px solid var(--primary);}
@@ -443,6 +446,23 @@
             .ai-header {font-size:1rem;}
             .ai-footer {font-size:0.82rem;}
         }
+        .speak-word.speak-cursor {
+    background: var(--secondary);
+    color: #232526;
+    border-radius: 3px;
+    box-shadow: 0 0 4px #ffe066;
+    transition: background 0.1s;
+}
+.stop-btn {
+    width:36px; height:36px; background:var(--secondary); border:none; border-radius:50%;
+    display:flex; align-items:center; justify-content:center; cursor:pointer; transition:background 0.2s;
+}
+.stop-btn img { width: 22px; height: 22px;}
+.actions-row {
+    margin-top: 18px;
+    display: flex;
+    gap: 8px;
+}
     </style>
 </head>
 <body>
@@ -472,13 +492,18 @@
     </div>
     <form id="chat_form" class="chat-input-bar" autocomplete="off">
         <div class="input-row">
-            {% csrf_token %}
-            <button type="button" id="micBtn" class="mic-btn" title="Speak">
-                <img src="{% static 'imgs/mic.svg' %}" alt="Mic" id="micIcon"/>
-            </button>
-            <input type="text" name="prompt" id="prompt" class="input-prompt" maxlength="240" placeholder="Type your message..." autocomplete="off" />
-            <button type="submit" class="send-btn" title="Send"><img src="{% static 'imgs/send.svg' %}" alt="send" /></button>
-        </div>
+    {% csrf_token %}
+    <button type="button" id="micBtn" class="mic-btn" title="Speak">
+        <img src="{% static 'imgs/mic.svg' %}" alt="Mic" id="micIcon"/>
+    </button>
+    <input type="text" name="prompt" id="prompt" class="input-prompt" maxlength="240" placeholder="Type your message..." autocomplete="off" />
+    <button type="submit" class="send-btn" id="sendBtn" title="Send">
+        <img src="{% static 'imgs/send.svg' %}" alt="send" />
+    </button>
+    <button type="button" class="stop-btn" id="stopBtn" title="Stop" style="display:none;">
+        <img src="{% static 'imgs/stop.svg' %}" alt="stop" />
+    </button>
+</div>
         <footer>
             <span style="color: white; font-size: 15px;">Sometimes incorrect, check facts.</span><br>
     © {{ now|date:"Y" }} Developed by <a href="https://codminds.com" style="text-decoration: none; color:#00cfff;">CodMinds.com</a>
@@ -552,6 +577,7 @@
     </div>
 </main>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script>
     // Popup logic
     function openPopup(id) { document.getElementById(id).classList.add('active'); }
@@ -584,33 +610,24 @@
     }
 
     function formatMessage(text) {
-        let blockIdx = 0;
-        text = text
-            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-            .replace(/\*(.*?)\*/g, '<em>$1</em>')
-            .replace(/`([^`\n]+)`/g, '<code>$1</code>')
-            .replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>')
-            .replace(/^\s*>\s?(.*)$/gm, '<blockquote>$1</blockquote>')
-            .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" style="max-width:100vw;border-radius:8px;">')
-            .replace(/```(\w+)?\n?([\s\S]*?)```/g, function(match, lang, code){
-                blockIdx++;
-                const blockId = `codeblock-${Date.now()}-${Math.floor(Math.random()*1000)}-${blockIdx}`;
-                return `<pre class="prism-block" id="${blockId}"><code class="language-${lang||'none'}">${escapeHtml(code)}</code>
-                    <button class="copy-btn" data-blockid="${blockId}" title="Copy"><span>⧉</span> Copy</button></pre>`;
-            });
-        return text;
-    }
-    function escapeHtml(text) {
-        return text.replace(/[&<>"']/g, function(m) {
-            return ({
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#39;'
-            })[m];
-        });
-    }
+    // marked automatically escapes HTML and formats markdown!
+    return marked.parse(text, {
+        gfm: true,
+        breaks: true
+    });
+}
+
+function escapeHtml(text) {
+    return text.replace(/[&<>"']/g, function(m) {
+        return ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+        })[m];
+    });
+}
     const chatContainer = document.getElementById('chat_container');
     const form = document.getElementById('chat_form');
     let promptInput = document.getElementById('prompt');
@@ -653,83 +670,144 @@
     }
     promptInput.addEventListener('input', switchToTextareaIfNeeded);
 
-    function typeMessage(element, text, callback) {
-        let i = 0;
-        function typing() {
-            if (i <= text.length) {
-                element.innerHTML = `<div class="ai-header"><img src="{% static 'imgs/bot.svg' %}" alt="AI" class="ai-icon">G CHAT</div>`
-                  + formatMessage(text.slice(0,i)) + '<span class="typing"></span>';
-                chatContainer.scrollTop = chatContainer.scrollHeight;
-                i++;
-                setTimeout(typing, 8 + Math.random() * 9);
-            } else {
-                element.innerHTML = `<div class="ai-header"><img src="{% static 'imgs/bot.svg' %}" alt="AI" class="ai-icon">G CHAT</div>`
-                  + formatMessage(text);
-                chatContainer.scrollTop = chatContainer.scrollHeight;
-                Prism.highlightAll();
-                if (callback) callback();
-                attachCopyHandlers(element);
-            }
-        }
-        typing();
+    let typingActive = false;
+let typingTimer = null;
+
+function isUserAtBottom() {
+    // Allow a margin for small differences
+    const tolerance = 40; // px
+    return (chatContainer.scrollHeight - chatContainer.scrollTop - chatContainer.clientHeight) < tolerance;
+}
+function scrollChatToBottomIfNeeded() {
+    if (isUserAtBottom()) {
+        requestAnimationFrame(() => {
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        });
     }
-    function addMessage(role, text, typing=false, editable=false) {
-        const row = document.createElement('div');
-        row.className = `message-row ${role}`;
-        let iconSrc = role === 'ai' ? "{% static 'imgs/bot.svg' %}" : "{% static 'imgs/user.svg' %}";
-        row.innerHTML = `
-            <div class="profile-icon"><img src="${iconSrc}" alt="${role}"></div>
-            <div class="message-content"></div>
-        `;
-        chatContainer.appendChild(row);
-        const messageElem = row.querySelector('.message-content');
-        if (role === 'ai') {
-            if (typing) typeMessage(messageElem, text, () => attachActions(row, role, text, editable));
-            else {
-                messageElem.innerHTML = `<div class="ai-header"><img src="{% static 'imgs/bot.svg' %}" alt="AI" class="ai-icon">AI Response</div>` +
-                  formatMessage(text);
-                Prism.highlightAll();
-                attachActions(row, role, text, editable);
-                attachCopyHandlers(messageElem);
-                chatContainer.scrollTop = chatContainer.scrollHeight;
-            }
+}
+
+function typeMessage(element, text, callback, row) {
+    let i = 0;
+    typingActive = true;
+    showStopButton();
+
+    function typing() {
+        if (!typingActive) {
+            element.innerHTML = `<div class="ai-header"><img src="{% static 'imgs/bot.svg' %}" alt="AI" class="ai-icon">G CHAT</div>`
+                + formatMessage(text.slice(0, i));
+            attachCopyHandlers(element);
+            showSendButton();
+            attachActions(row, 'ai', text, true);
+            scrollChatToBottomIfNeeded();
+            if (callback) callback();
+            return;
+        }
+
+        if (i <= text.length) {
+            element.innerHTML = `<div class="ai-header"><img src="{% static 'imgs/bot.svg' %}" alt="AI" class="ai-icon">G CHAT</div>`
+                + formatMessage(text.slice(0, i)) + '<span class="typing"></span>';
+            scrollChatToBottomIfNeeded();
+            i++;
+            typingTimer = setTimeout(typing, 8 + Math.random() * 9);
         } else {
-            messageElem.innerHTML = formatMessage(text);
+            element.innerHTML = `<div class="ai-header"><img src="{% static 'imgs/bot.svg' %}" alt="AI" class="ai-icon">G CHAT</div>`
+                + formatMessage(text);
+            Prism.highlightAll();
+            attachCopyHandlers(element);
+            showSendButton();
+            attachActions(row, 'ai', text, true);
+            typingActive = false;
+            scrollChatToBottomIfNeeded();
+            if (callback) callback();
+        }
+    }
+    typing();
+}
+
+function showStopButton() {
+    document.getElementById('sendBtn').style.display = 'none';
+    document.getElementById('stopBtn').style.display = 'flex';
+}
+function showSendButton() {
+    document.getElementById('sendBtn').style.display = 'flex';
+    document.getElementById('stopBtn').style.display = 'none';
+}
+
+// Stop button handler
+document.getElementById('stopBtn').onclick = function() {
+    typingActive = false;
+    if (typingTimer) clearTimeout(typingTimer);
+    showSendButton();
+};
+    // Attach actions (Speak, Requery, Edit) to AI message
+function attachActions(row, role, text, editable=false) {
+    let messageContent = row.querySelector('.message-content');
+    let oldActions = messageContent.querySelector('.actions-row');
+    if (oldActions) oldActions.remove();
+
+    if (role === "ai") {
+        let actions = document.createElement('div');
+        actions.className = "actions-row";
+        let speakBtn = document.createElement('button');
+        speakBtn.className = "speak-btn";
+        speakBtn.innerText = "🔈 Speak";
+        speakBtn.onclick = () => speak(text, messageContent, row);
+        actions.appendChild(speakBtn);
+
+        let requeryBtn = document.createElement('button');
+        requeryBtn.className = "requery-btn";
+        requeryBtn.innerText = "↻ Requery";
+        requeryBtn.onclick = () => {
+            if (lastUserPrompt) {
+                requeryText = lastUserPrompt;
+                submitPrompt(requeryText, true);
+            }
+        };
+        actions.appendChild(requeryBtn);
+
+        let editBtn = document.createElement('button');
+        editBtn.className = "edit-btn";
+        editBtn.innerText = "✎ Edit";
+        editBtn.onclick = () => {
+            promptInput.value = lastUserPrompt;
+            promptInput.focus();
+        };
+        actions.appendChild(editBtn);
+
+        messageContent.appendChild(actions);
+    }
+}
+
+// Usage in addMessage (AI case)
+function addMessage(role, text, typing=false, editable=false) {
+    const row = document.createElement('div');
+    row.className = `message-row ${role}`;
+    let iconSrc = role === 'ai' ? "{% static 'imgs/bot.svg' %}" : "{% static 'imgs/user.svg' %}";
+    row.innerHTML = `
+        <div class="profile-icon"><img src="${iconSrc}" alt="${role}"></div>
+        <div class="message-content"></div>
+    `;
+    chatContainer.appendChild(row);
+    const messageElem = row.querySelector('.message-content');
+    let formatted = formatMessage(text);
+    messageElem.dataset.originalHtml = formatted;
+    if (role === 'ai') {
+        if (typing) typeMessage(messageElem, text, () => {}, row);
+        else {
+            messageElem.innerHTML = `<div class="ai-header"><img src="{% static 'imgs/bot.svg' %}" alt="AI" class="ai-icon">AI Response</div>` + formatted;
+            Prism.highlightAll();
             attachActions(row, role, text, editable);
             attachCopyHandlers(messageElem);
             chatContainer.scrollTop = chatContainer.scrollHeight;
         }
+    } else {
+        messageElem.innerHTML = formatted;
+        attachActions(row, role, text, editable);
+        attachCopyHandlers(messageElem);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
     }
-    function attachActions(row, role, text, editable=false) {
-        if (role === "ai") {
-            let actions = document.createElement('div');
-            actions.className = "actions-row";
-            let speakBtn = document.createElement('button');
-            speakBtn.className = "speak-btn";
-            speakBtn.innerText = "🔈 Speak";
-            speakBtn.onclick = () => speak(text);
-            actions.appendChild(speakBtn);
-            let requeryBtn = document.createElement('button');
-            requeryBtn.className = "requery-btn";
-            requeryBtn.innerText = "↻ Requery";
-            requeryBtn.onclick = () => {
-                if (lastUserPrompt) {
-                    requeryText = lastUserPrompt;
-                    submitPrompt(requeryText, true);
-                }
-            };
-            actions.appendChild(requeryBtn);
-            let editBtn = document.createElement('button');
-            editBtn.className = "edit-btn";
-            editBtn.innerText = "✎ Edit";
-            editBtn.onclick = () => {
-                promptInput.value = lastUserPrompt;
-                promptInput.focus();
-            };
-            actions.appendChild(editBtn);
-            row.querySelector('.message-content').appendChild(actions);
-        }
-    }
+}
+
     function attachCopyHandlers(messageElem) {
         const copyButtons = messageElem.querySelectorAll('.copy-btn');
         copyButtons.forEach(btn => {
@@ -755,13 +833,69 @@
             };
         });
     }
-    function speak(text) {
-        if ('speechSynthesis' in window) {
-            const msg = new SpeechSynthesisUtterance();
-            msg.text = text;
-            window.speechSynthesis.speak(msg);
-        }
+    // Speak with real-time cursor highlight
+function speak(text, element, row) {
+    if (!('speechSynthesis' in window)) return;
+
+    // Remove markdown/HTML tags for plain text speech
+    let plainText = text.replace(/(<([^>]+)>)/gi, "");
+    // Split into words (preserving spaces)
+    const words = plainText.split(/(\s+)/);
+    let html = "";
+    let charCount = 0;
+    let wordIndices = [];
+
+    for (let i = 0; i < words.length; i++) {
+        html += `<span class="speak-word" data-idx="${i}">${escapeHtml(words[i])}</span>`;
+        wordIndices.push({start: charCount, end: charCount + words[i].length, idx: i});
+        charCount += words[i].length;
     }
+    // Save original HTML
+    element.dataset.originalHtml = element.innerHTML;
+    // Replace with word-spans
+    element.innerHTML = html;
+
+    const utter = new window.SpeechSynthesisUtterance(plainText);
+    utter.rate = 1;
+
+    utter.onboundary = function(event) {
+        if (event.name === "word" || event.charIndex !== undefined) {
+            let idx = 0;
+            for (let w of wordIndices) {
+                if (event.charIndex >= w.start && event.charIndex < w.end) {
+                    idx = w.idx;
+                    break;
+                }
+            }
+            highlightWord(idx, element);
+        }
+    };
+
+    utter.onend = function() {
+        clearHighlights(element);
+        // Restore original formatted message and actions
+        setTimeout(() => {
+            element.innerHTML = element.dataset.originalHtml || element.innerHTML;
+            Prism.highlightAll();
+            attachActions(row, 'ai', text, true); // Restore buttons
+        }, 300);
+    };
+
+    window.speechSynthesis.cancel(); // Stop any previous speech
+    window.speechSynthesis.speak(utter);
+
+    function highlightWord(idx, elem) {
+        elem.querySelectorAll('.speak-word').forEach((span, i) => {
+            span.classList.toggle('speak-cursor', i === idx);
+        });
+    }
+    function clearHighlights(elem) {
+        elem.querySelectorAll('.speak-word').forEach(span => {
+            span.classList.remove('speak-cursor');
+        });
+    }
+}
+
     function submitPrompt(prompt, fromRequery=false) {
         lastUserPrompt = prompt;
         addMessage('user', prompt, false, true);
