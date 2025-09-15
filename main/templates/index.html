@@ -5,11 +5,8 @@
     <meta charset="UTF-8" />
     <title>G Chat</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="{% static 'imgs/bot.svg' %}">
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Fira+Mono:wght@400;700&display=swap" rel="stylesheet">
-    <!-- PrismJS for syntax highlighting -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
     <style>
         :root {
@@ -46,109 +43,45 @@
             width: 100vw;
             overflow: hidden;
         }
-       header {
-    width: 100vw;
-    padding: 2px;
-    background: var(--chat-bg);
-    border-bottom: 1px solid #181a1f;
-    box-shadow: 0 2px 8px 0 rgba(0,0,0,0.08);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: 80px; /* Increased height for a bigger header */
-}
-
-.logo-bar {
-    font-size: 2.2rem;      /* Increased font size for the app name */
-    font-weight: 700;
-    color: var(--primary);
-    letter-spacing: 2px;
-    display: flex;
-    align-items: center;
-    height: 80px;           /* Match header height for vertical centering */
-    padding-left: 38px;     /* More left padding for a larger feel */
-}
-
-.logo-bar img {
-    width: 70px;            /* Make logo larger */
-    height: 70px;
-    margin-right: 22px;     /* More space between logo and text */
-}
+        header {
+            width: 100vw;
+            padding: 2px;
+            background: var(--chat-bg);
+            border-bottom: 1px solid #181a1f;
+            box-shadow: 0 2px 8px 0 rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 80px;
+            z-index: 10;
+        }
+        .logo-bar {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--primary);
+            letter-spacing: 2px;
+            display: flex;
+            align-items: center;
+            height: 80px;
+            padding-left: 38px;
+        }
+        .logo-bar img {
+            width: 70px;
+            height: 70px;
+            margin-right: 22px;
+        }
         .auth-buttons { display: flex; gap: 12px; padding-right: 20px; align-items: center;}
         .auth-btn { padding: 7px 20px; font-size: 1rem; font-family: var(--font-main); border-radius: 7px; border: 1px solid var(--primary); background: var(--chat-bg); color: var(--primary); cursor: pointer; transition: 0.25s;}
         .auth-btn:hover { background: var(--primary); color: #232526; border: 1px solid var(--primary);}
         .username-box { color: var(--secondary); font-weight: 700; font-size: 1rem; margin-right: 18px; background: #232526; border-radius: 8px; padding: 6px 16px; display: flex; align-items: center; gap: 12px;}
         .logout-btn { padding: 6px 15px; font-size: 1rem; font-family: var(--font-main); border-radius: 7px; border: 1px solid var(--secondary); background: var(--chat-bg); color: var(--secondary); cursor: pointer;}
         .logout-btn:hover { background: var(--secondary); color: #232526;}
-        .popup-bg { position: fixed; top:0; left:0; width:100vw; height:100vh; background: rgba(11,20,40,0.82); z-index: 9999; display: none; align-items: center; justify-content: center; }
-        .popup-bg.active { display: flex; }
-        .popup-form { background: var(--chat-bg); border-radius: 17px; max-width: 370px; width: 94vw; padding: 34px 32px 32px 32px; box-shadow: 0 16px 36px 0 rgba(0,0,0,0.32); position: relative; color: #fff; border: 2.5px solid var(--primary);}
-        .popup-form h2 { font-size: 1.5rem; margin: 0 0 20px 0; font-weight: 700; letter-spacing: 1px; text-align: center; color: var(--primary); text-shadow: 0 2px 10px #232526;}
-        .popup-form label { font-size: 1.08rem; margin-bottom: 6px; display: block; color: #ffe066; font-weight: 600; margin-top: 7px;}
-        .popup-form .password-wrapper {
-            position: relative;
-            display: flex;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        .popup-form input[type="text"],
-        .popup-form input[type="password"],
-        .popup-form input[type="email"] {
-            width: 92%;
-            padding: 11px 13px;
-            border-radius: 8px;
-            border: 1.5px solid var(--primary);
-            background: #191d22;
-            color: #fff;
-            font-size: 1.08rem;
-            font-family: var(--font-main);
-            box-shadow: 0 2px 6px rgba(0,0,0,0.09);
-            outline: none;
-            transition: border 0.18s;
-        }
-        .popup-form input:focus { border: 1.5px solid var(--secondary); background: #232526;}
-        .password-eye-btn {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            cursor: pointer;
-            z-index: 2;
-            padding: 0;
-            margin: 0;
-            height: 28px;
-            display: flex;
-            align-items: center;
-        }
-        .password-eye-btn svg {
-            width: 23px;
-            height: 23px;
-            fill: var(--secondary);
-            transition: fill 0.2s;
-        }
-        .password-eye-btn:active svg, .password-eye-btn:focus svg {
-            fill: var(--primary);
-        }
-        .remember-row { display: flex; align-items: center; gap: 7px; margin-bottom: 13px;}
-        .popup-form input[type="checkbox"] { accent-color: var(--primary); width: 20px; height: 20px;}
-        .remember-label { color: var(--secondary); font-size: 1.03rem; font-weight: 600; cursor: pointer;}
-        .popup-form button[type="submit"] { width: 100%; padding: 13px 0; border-radius: 8px; background: linear-gradient(90deg, var(--primary) 60%, var(--secondary) 100%); color: #232526; border: none; font-size: 1.09rem; font-weight: 700; cursor: pointer; margin-top: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.14); transition: background 0.18s;}
-        .popup-form button[type="submit"]:hover { background: linear-gradient(90deg, var(--secondary) 60%, var(--primary) 100%);}
-        .popup-close { position: absolute; top: 16px; right: 20px; background: none; border: none; color: var(--secondary); font-size: 2rem; font-weight: 900; cursor: pointer; font-family: var(--font-main); z-index: 2; transition: color 0.18s;}
-        .popup-close:hover { color: var(--primary); text-shadow: 0 1px 8px #ffe066;}
-        .popup-form .popup-extra { font-size: 1.03rem; margin-top: 20px; text-align: center; color: #ffe066; font-weight: 500;}
-        .popup-form .popup-extra a { color: var(--primary); text-decoration: underline; cursor: pointer; font-weight: 700;}
-        .popup-form .popup-extra a:hover { color: var(--secondary);}
         main {
             flex: 1;
             width: 100vw;
+            min-height: 0;
             display: flex;
             flex-direction: column;
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
             position: relative;
             background: var(--main-bg);
         }
@@ -159,26 +92,25 @@
             width: 100vw;
             min-height: 0;
             position: relative;
-            padding-bottom: 70px;
-            height: calc(100vh - 56px - 48px);
+            /* No bottom padding here! Chat container must fill available space */
         }
         #chat_container {
-    flex: 1 1 auto;
-    width: 100vw;
-    max-width: 100vw;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    background: var(--chat-bg);
-    box-sizing: border-box;
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding: 20px 18px 80px 18px; /* bottom padding for input bar */
-    min-height: 0;
-    position: relative;
-    /* height: 90%; <-- remove this */
-}
+            flex: 1 1 auto;
+            width: 100vw;
+            max-width: 100vw;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            background: var(--chat-bg);
+            box-sizing: border-box;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 20px 18px 0 18px;
+            min-height: 0;
+            position: relative;
+            /* No bottom padding! */
+        }
         .message-row {
             width: 100%;
             margin: 0;
@@ -332,6 +264,7 @@
             color: #232526;
             font-weight: bold;
         }
+        /* Fixed chat input bar at the very bottom, above everything */
         .chat-input-bar {
             width: 100vw;
             max-width: 100vw;
@@ -342,7 +275,7 @@
             border-top: 1.5px solid #181a1f;
             box-shadow: var(--shadow);
             margin: 0;
-            z-index: 100;
+            z-index: 30;
         }
         .input-row {
             width: 100vw;
@@ -384,8 +317,13 @@
             width:36px; height:36px; background:var(--primary); border:none; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:background 0.2s;
         }
         .send-btn img { width: 22px; height: 22px;}
+        .stop-btn {
+            width:36px; height:36px; background:var(--secondary); border:none; border-radius:50%;
+            display:flex; align-items:center; justify-content:center; cursor:pointer; transition:background 0.2s;
+        }
+        .stop-btn img { width: 22px; height: 22px;}
         .actions-row {
-            margin-top: 7px;
+            margin-top: 18px;
             display: flex;
             gap: 8px;
         }
@@ -423,6 +361,7 @@
             color: var(--primary);
             background: none;
             letter-spacing: 1px;
+            z-index: 40;
         }
         @media (max-width: 900px) {
             .logo-bar { font-size: 1.2rem; height: 42px; padding-left: 10px;}
@@ -448,22 +387,74 @@
             .ai-footer {font-size:0.82rem;}
         }
         .speak-word.speak-cursor {
-    background: var(--secondary);
-    color: #232526;
-    border-radius: 3px;
-    box-shadow: 0 0 4px #ffe066;
-    transition: background 0.1s;
-}
-.stop-btn {
-    width:36px; height:36px; background:var(--secondary); border:none; border-radius:50%;
-    display:flex; align-items:center; justify-content:center; cursor:pointer; transition:background 0.2s;
-}
-.stop-btn img { width: 22px; height: 22px;}
-.actions-row {
-    margin-top: 18px;
-    display: flex;
-    gap: 8px;
-}
+            background: var(--secondary);
+            color: #232526;
+            border-radius: 3px;
+            box-shadow: 0 0 4px #ffe066;
+            transition: background 0.1s;
+        }
+        /* Popup styles (same as before) */
+        .popup-bg { position: fixed; top:0; left:0; width:100vw; height:100vh; background: rgba(11,20,40,0.82); z-index: 9999; display: none; align-items: center; justify-content: center; }
+        .popup-bg.active { display: flex; }
+        .popup-form { background: var(--chat-bg); border-radius: 17px; max-width: 370px; width: 94vw; padding: 34px 32px 32px 32px; box-shadow: 0 16px 36px 0 rgba(0,0,0,0.32); position: relative; color: #fff; border: 2.5px solid var(--primary);}
+        .popup-form h2 { font-size: 1.5rem; margin: 0 0 20px 0; font-weight: 700; letter-spacing: 1px; text-align: center; color: var(--primary); text-shadow: 0 2px 10px #232526;}
+        .popup-form label { font-size: 1.08rem; margin-bottom: 6px; display: block; color: #ffe066; font-weight: 600; margin-top: 7px;}
+        .popup-form .password-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .popup-form input[type="text"],
+        .popup-form input[type="password"],
+        .popup-form input[type="email"] {
+            width: 92%;
+            padding: 11px 13px;
+            border-radius: 8px;
+            border: 1.5px solid var(--primary);
+            background: #191d22;
+            color: #fff;
+            font-size: 1.08rem;
+            font-family: var(--font-main);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.09);
+            outline: none;
+            transition: border 0.18s;
+        }
+        .popup-form input:focus { border: 1.5px solid var(--secondary); background: #232526;}
+        .password-eye-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            z-index: 2;
+            padding: 0;
+            margin: 0;
+            height: 28px;
+            display: flex;
+            align-items: center;
+        }
+        .password-eye-btn svg {
+            width: 23px;
+            height: 23px;
+            fill: var(--secondary);
+            transition: fill 0.2s;
+        }
+        .password-eye-btn:active svg, .password-eye-btn:focus svg {
+            fill: var(--primary);
+        }
+        .remember-row { display: flex; align-items: center; gap: 7px; margin-bottom: 13px;}
+        .popup-form input[type="checkbox"] { accent-color: var(--primary); width: 20px; height: 20px;}
+        .remember-label { color: var(--secondary); font-size: 1.03rem; font-weight: 600; cursor: pointer;}
+        .popup-form button[type="submit"] { width: 100%; padding: 13px 0; border-radius: 8px; background: linear-gradient(90deg, var(--primary) 60%, var(--secondary) 100%); color: #232526; border: none; font-size: 1.09rem; font-weight: 700; cursor: pointer; margin-top: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.14); transition: background 0.18s;}
+        .popup-form button[type="submit"]:hover { background: linear-gradient(90deg, var(--secondary) 60%, var(--primary) 100%);}
+        .popup-close { position: absolute; top: 16px; right: 20px; background: none; border: none; color: var(--secondary); font-size: 2rem; font-weight: 900; cursor: pointer; font-family: var(--font-main); z-index: 2; transition: color 0.18s;}
+        .popup-close:hover { color: var(--primary); text-shadow: 0 1px 8px #ffe066;}
+        .popup-form .popup-extra { font-size: 1.03rem; margin-top: 20px; text-align: center; color: #ffe066; font-weight: 500;}
+        .popup-form .popup-extra a { color: var(--primary); text-decoration: underline; cursor: pointer; font-weight: 700;}
+        .popup-form .popup-extra a:hover { color: var(--secondary);}
     </style>
 </head>
 <body>
@@ -493,24 +484,24 @@
     </div>
     <form id="chat_form" class="chat-input-bar" autocomplete="off">
         <div class="input-row">
-    {% csrf_token %}
-    <button type="button" id="micBtn" class="mic-btn" title="Speak">
-        <img src="{% static 'imgs/mic.svg' %}" alt="Mic" id="micIcon"/>
-    </button>
-    <input type="text" name="prompt" id="prompt" class="input-prompt" maxlength="240" placeholder="Type your message..." autocomplete="off" />
-    <button type="submit" class="send-btn" id="sendBtn" title="Send">
-        <img src="{% static 'imgs/send.svg' %}" alt="send" />
-    </button>
-    <button type="button" class="stop-btn" id="stopBtn" title="Stop" style="display:none;">
-        <img src="{% static 'imgs/stop.svg' %}" alt="stop" />
-    </button>
-</div>
+            {% csrf_token %}
+            <button type="button" id="micBtn" class="mic-btn" title="Speak">
+                <img src="{% static 'imgs/mic.svg' %}" alt="Mic" id="micIcon"/>
+            </button>
+            <input type="text" name="prompt" id="prompt" class="input-prompt" maxlength="240" placeholder="Type your message..." autocomplete="off" />
+            <button type="submit" class="send-btn" id="sendBtn" title="Send">
+                <img src="{% static 'imgs/send.svg' %}" alt="send" />
+            </button>
+            <button type="button" class="stop-btn" id="stopBtn" title="Stop" style="display:none;">
+                <img src="{% static 'imgs/stop.svg' %}" alt="stop" />
+            </button>
+        </div>
         <footer>
             <span style="color: white; font-size: 15px;">Sometimes incorrect, check facts.</span><br>
-    © {{ now|date:"Y" }} Developed by <a href="https://codminds.com" style="text-decoration: none; color:#00cfff;">CodMinds.com</a>
-</footer>
+            © {{ now|date:"Y" }} Developed by <a href="https://codminds.com" style="text-decoration: none; color:#00cfff;">CodMinds.com</a>
+        </footer>
     </form>
-    <!-- Login Popup -->
+    <!-- Popups unchanged -->
     <div id="loginPopup" class="popup-bg">
         <form class="popup-form" method="post" action="{% url 'login' %}">
             {% csrf_token %}
@@ -544,7 +535,6 @@
             </div>
         </form>
     </div>
-    <!-- Signup Popup -->
     <div id="signupPopup" class="popup-bg">
         <form class="popup-form" method="post" action="{% url 'signup' %}">
             {% csrf_token %}
@@ -594,7 +584,6 @@
         });
     });
 
-    // Password view toggle logic with professional SVG eye icons
     function togglePassword(inputId, btn) {
         var input = document.getElementById(inputId);
         var eyeOpen = btn.querySelector('.eye-open');
@@ -611,25 +600,33 @@
     }
 
     function formatMessage(text) {
-    // marked automatically escapes HTML and formats markdown!
-    return marked.parse(text, {
-        gfm: true,
-        breaks: true
-    });
-}
+        return marked.parse(text, {gfm: true, breaks: true});
+    }
+    function escapeHtml(text) {
+        return text.replace(/[&<>"']/g, function(m) {
+            return ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            })[m];
+        });
+    }
 
-function escapeHtml(text) {
-    return text.replace(/[&<>"']/g, function(m) {
-        return ({
-            '&': '&amp;',
-            '<': '&lt;',
-            '>': '&gt;',
-            '"': '&quot;',
-            "'": '&#39;'
-        })[m];
-    });
-}
+    // Ensure chat container height excludes input bar!
     const chatContainer = document.getElementById('chat_container');
+    const chatInputBar = document.querySelector('.chat-input-bar');
+    function resizeChatContainer() {
+        const barHeight = chatInputBar.offsetHeight;
+        chatContainer.style.height = "calc(100vh - " + barHeight + "px - 80px)";
+        chatContainer.style.maxHeight = "calc(100vh - " + barHeight + "px - 80px)";
+    }
+    window.addEventListener('resize', resizeChatContainer);
+    document.addEventListener('DOMContentLoaded', resizeChatContainer);
+    resizeChatContainer();
+
+    // Chat logic
     const form = document.getElementById('chat_form');
     let promptInput = document.getElementById('prompt');
     let lastUserPrompt = "";
@@ -672,143 +669,127 @@ function escapeHtml(text) {
     promptInput.addEventListener('input', switchToTextareaIfNeeded);
 
     let typingActive = false;
-let typingTimer = null;
+    let typingTimer = null;
 
-function isUserAtBottom() {
-    // Allow a margin for small differences
-    const tolerance = 40; // px
-    return (chatContainer.scrollHeight - chatContainer.scrollTop - chatContainer.clientHeight) < tolerance;
-}
-
-function typeMessage(element, text, callback, row) {
-    let i = 0;
-    typingActive = true;
-    showStopButton();
-
-    function scrollChatToBottom() {
-        // Wait for DOM update before scrolling
-        requestAnimationFrame(() => {
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-        });
+    function isUserAtBottom() {
+        const tolerance = 40;
+        return (chatContainer.scrollHeight - chatContainer.scrollTop - chatContainer.clientHeight) < tolerance;
     }
 
-    function typing() {
-        if (!typingActive) {
-            element.innerHTML = `<div class="ai-header"><img src="{% static 'imgs/bot.svg' %}" alt="AI" class="ai-icon">G CHAT</div>`
-                + formatMessage(text.slice(0, i));
-            attachCopyHandlers(element);
-            showSendButton();
-            attachActions(row, 'ai', text, true);
-            scrollChatToBottom();
-            if (callback) callback();
-            return;
+    function typeMessage(element, text, callback, row) {
+        let i = 0;
+        typingActive = true;
+        showStopButton();
+        function scrollChatToBottom() {
+            requestAnimationFrame(() => {
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            });
         }
-
-        if (i <= text.length) {
-            element.innerHTML = `<div class="ai-header"><img src="{% static 'imgs/bot.svg' %}" alt="AI" class="ai-icon">G CHAT</div>`
-                + formatMessage(text.slice(0, i)) + '<span class="typing"></span>';
-            scrollChatToBottom();
-            i++;
-            typingTimer = setTimeout(typing, 8 + Math.random() * 9);
-        } else {
-            element.innerHTML = `<div class="ai-header"><img src="{% static 'imgs/bot.svg' %}" alt="AI" class="ai-icon">G CHAT</div>`
-                + formatMessage(text);
-            Prism.highlightAll();
-            attachCopyHandlers(element);
-            showSendButton();
-            attachActions(row, 'ai', text, true);
-            typingActive = false;
-            scrollChatToBottom();
-            if (callback) callback();
-        }
-    }
-    typing();
-}
-
-function showStopButton() {
-    document.getElementById('sendBtn').style.display = 'none';
-    document.getElementById('stopBtn').style.display = 'flex';
-}
-function showSendButton() {
-    document.getElementById('sendBtn').style.display = 'flex';
-    document.getElementById('stopBtn').style.display = 'none';
-}
-
-// Stop button handler
-document.getElementById('stopBtn').onclick = function() {
-    typingActive = false;
-    if (typingTimer) clearTimeout(typingTimer);
-    showSendButton();
-};
-    // Attach actions (Speak, Requery, Edit) to AI message
-function attachActions(row, role, text, editable=false) {
-    let messageContent = row.querySelector('.message-content');
-    let oldActions = messageContent.querySelector('.actions-row');
-    if (oldActions) oldActions.remove();
-
-    if (role === "ai") {
-        let actions = document.createElement('div');
-        actions.className = "actions-row";
-        let speakBtn = document.createElement('button');
-        speakBtn.className = "speak-btn";
-        speakBtn.innerText = "🔈 Speak";
-        speakBtn.onclick = () => speak(text, messageContent, row);
-        actions.appendChild(speakBtn);
-
-        let requeryBtn = document.createElement('button');
-        requeryBtn.className = "requery-btn";
-        requeryBtn.innerText = "↻ Requery";
-        requeryBtn.onclick = () => {
-            if (lastUserPrompt) {
-                requeryText = lastUserPrompt;
-                submitPrompt(requeryText, true);
+        function typing() {
+            if (!typingActive) {
+                element.innerHTML = `<div class="ai-header"><img src="{% static 'imgs/bot.svg' %}" alt="AI" class="ai-icon">G CHAT</div>`
+                    + formatMessage(text.slice(0, i));
+                attachCopyHandlers(element);
+                showSendButton();
+                attachActions(row, 'ai', text, true);
+                scrollChatToBottom();
+                if (callback) callback();
+                return;
             }
-        };
-        actions.appendChild(requeryBtn);
-
-        let editBtn = document.createElement('button');
-        editBtn.className = "edit-btn";
-        editBtn.innerText = "✎ Edit";
-        editBtn.onclick = () => {
-            promptInput.value = lastUserPrompt;
-            promptInput.focus();
-        };
-        actions.appendChild(editBtn);
-
-        messageContent.appendChild(actions);
+            if (i <= text.length) {
+                element.innerHTML = `<div class="ai-header"><img src="{% static 'imgs/bot.svg' %}" alt="AI" class="ai-icon">G CHAT</div>`
+                    + formatMessage(text.slice(0, i)) + '<span class="typing"></span>';
+                scrollChatToBottom();
+                i++;
+                typingTimer = setTimeout(typing, 8 + Math.random() * 9);
+            } else {
+                element.innerHTML = `<div class="ai-header"><img src="{% static 'imgs/bot.svg' %}" alt="AI" class="ai-icon">G CHAT</div>`
+                    + formatMessage(text);
+                Prism.highlightAll();
+                attachCopyHandlers(element);
+                showSendButton();
+                attachActions(row, 'ai', text, true);
+                typingActive = false;
+                scrollChatToBottom();
+                if (callback) callback();
+            }
+        }
+        typing();
     }
-}
-
-// Usage in addMessage (AI case)
-function addMessage(role, text, typing=false, editable=false) {
-    const row = document.createElement('div');
-    row.className = `message-row ${role}`;
-    let iconSrc = role === 'ai' ? "{% static 'imgs/bot.svg' %}" : "{% static 'imgs/user.svg' %}";
-    row.innerHTML = `
-        <div class="profile-icon"><img src="${iconSrc}" alt="${role}"></div>
-        <div class="message-content"></div>
-    `;
-    chatContainer.appendChild(row);
-    const messageElem = row.querySelector('.message-content');
-    let formatted = formatMessage(text);
-    messageElem.dataset.originalHtml = formatted;
-    if (role === 'ai') {
-        if (typing) typeMessage(messageElem, text, () => {}, row);
-        else {
-            messageElem.innerHTML = `<div class="ai-header"><img src="{% static 'imgs/bot.svg' %}" alt="AI" class="ai-icon">AI Response</div>` + formatted;
-            Prism.highlightAll();
+    function showStopButton() {
+        document.getElementById('sendBtn').style.display = 'none';
+        document.getElementById('stopBtn').style.display = 'flex';
+    }
+    function showSendButton() {
+        document.getElementById('sendBtn').style.display = 'flex';
+        document.getElementById('stopBtn').style.display = 'none';
+    }
+    document.getElementById('stopBtn').onclick = function() {
+        typingActive = false;
+        if (typingTimer) clearTimeout(typingTimer);
+        showSendButton();
+    };
+    function attachActions(row, role, text, editable=false) {
+        let messageContent = row.querySelector('.message-content');
+        let oldActions = messageContent.querySelector('.actions-row');
+        if (oldActions) oldActions.remove();
+        if (role === "ai") {
+            let actions = document.createElement('div');
+            actions.className = "actions-row";
+            let speakBtn = document.createElement('button');
+            speakBtn.className = "speak-btn";
+            speakBtn.innerText = "🔈 Speak";
+            speakBtn.onclick = () => speak(text, messageContent, row);
+            actions.appendChild(speakBtn);
+            let requeryBtn = document.createElement('button');
+            requeryBtn.className = "requery-btn";
+            requeryBtn.innerText = "↻ Requery";
+            requeryBtn.onclick = () => {
+                if (lastUserPrompt) {
+                    requeryText = lastUserPrompt;
+                    submitPrompt(requeryText, true);
+                }
+            };
+            actions.appendChild(requeryBtn);
+            let editBtn = document.createElement('button');
+            editBtn.className = "edit-btn";
+            editBtn.innerText = "✎ Edit";
+            editBtn.onclick = () => {
+                promptInput.value = lastUserPrompt;
+                promptInput.focus();
+            };
+            actions.appendChild(editBtn);
+            messageContent.appendChild(actions);
+        }
+    }
+    function addMessage(role, text, typing=false, editable=false) {
+        const row = document.createElement('div');
+        row.className = `message-row ${role}`;
+        let iconSrc = role === 'ai' ? "{% static 'imgs/bot.svg' %}" : "{% static 'imgs/user.svg' %}";
+        row.innerHTML = `
+            <div class="profile-icon"><img src="${iconSrc}" alt="${role}"></div>
+            <div class="message-content"></div>
+        `;
+        chatContainer.appendChild(row);
+        const messageElem = row.querySelector('.message-content');
+        let formatted = formatMessage(text);
+        messageElem.dataset.originalHtml = formatted;
+        if (role === 'ai') {
+            if (typing) typeMessage(messageElem, text, () => {}, row);
+            else {
+                messageElem.innerHTML = `<div class="ai-header"><img src="{% static 'imgs/bot.svg' %}" alt="AI" class="ai-icon">AI Response</div>` + formatted;
+                Prism.highlightAll();
+                attachActions(row, role, text, editable);
+                attachCopyHandlers(messageElem);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+        } else {
+            messageElem.innerHTML = formatted;
             attachActions(row, role, text, editable);
             attachCopyHandlers(messageElem);
             chatContainer.scrollTop = chatContainer.scrollHeight;
         }
-    } else {
-        messageElem.innerHTML = formatted;
-        attachActions(row, role, text, editable);
-        attachCopyHandlers(messageElem);
-        chatContainer.scrollTop = chatContainer.scrollHeight;
     }
-}
-
     function attachCopyHandlers(messageElem) {
         const copyButtons = messageElem.querySelectorAll('.copy-btn');
         copyButtons.forEach(btn => {
@@ -834,69 +815,55 @@ function addMessage(role, text, typing=false, editable=false) {
             };
         });
     }
-    // Speak with real-time cursor highlight
-function speak(text, element, row) {
-    if (!('speechSynthesis' in window)) return;
-
-    // Remove markdown/HTML tags for plain text speech
-    let plainText = text.replace(/(<([^>]+)>)/gi, "");
-    // Split into words (preserving spaces)
-    const words = plainText.split(/(\s+)/);
-    let html = "";
-    let charCount = 0;
-    let wordIndices = [];
-
-    for (let i = 0; i < words.length; i++) {
-        html += `<span class="speak-word" data-idx="${i}">${escapeHtml(words[i])}</span>`;
-        wordIndices.push({start: charCount, end: charCount + words[i].length, idx: i});
-        charCount += words[i].length;
-    }
-    // Save original HTML
-    element.dataset.originalHtml = element.innerHTML;
-    // Replace with word-spans
-    element.innerHTML = html;
-
-    const utter = new window.SpeechSynthesisUtterance(plainText);
-    utter.rate = 1;
-
-    utter.onboundary = function(event) {
-        if (event.name === "word" || event.charIndex !== undefined) {
-            let idx = 0;
-            for (let w of wordIndices) {
-                if (event.charIndex >= w.start && event.charIndex < w.end) {
-                    idx = w.idx;
-                    break;
-                }
-            }
-            highlightWord(idx, element);
+    function speak(text, element, row) {
+        if (!('speechSynthesis' in window)) return;
+        let plainText = text.replace(/(<([^>]+)>)/gi, "");
+        const words = plainText.split(/(\s+)/);
+        let html = "";
+        let charCount = 0;
+        let wordIndices = [];
+        for (let i = 0; i < words.length; i++) {
+            html += `<span class="speak-word" data-idx="${i}">${escapeHtml(words[i])}</span>`;
+            wordIndices.push({start: charCount, end: charCount + words[i].length, idx: i});
+            charCount += words[i].length;
         }
-    };
-
-    utter.onend = function() {
-        clearHighlights(element);
-        // Restore original formatted message and actions
-        setTimeout(() => {
-            element.innerHTML = element.dataset.originalHtml || element.innerHTML;
-            Prism.highlightAll();
-            attachActions(row, 'ai', text, true); // Restore buttons
-        }, 300);
-    };
-
-    window.speechSynthesis.cancel(); // Stop any previous speech
-    window.speechSynthesis.speak(utter);
-
-    function highlightWord(idx, elem) {
-        elem.querySelectorAll('.speak-word').forEach((span, i) => {
-            span.classList.toggle('speak-cursor', i === idx);
-        });
+        element.dataset.originalHtml = element.innerHTML;
+        element.innerHTML = html;
+        const utter = new window.SpeechSynthesisUtterance(plainText);
+        utter.rate = 1;
+        utter.onboundary = function(event) {
+            if (event.name === "word" || event.charIndex !== undefined) {
+                let idx = 0;
+                for (let w of wordIndices) {
+                    if (event.charIndex >= w.start && event.charIndex < w.end) {
+                        idx = w.idx;
+                        break;
+                    }
+                }
+                highlightWord(idx, element);
+            }
+        };
+        utter.onend = function() {
+            clearHighlights(element);
+            setTimeout(() => {
+                element.innerHTML = element.dataset.originalHtml || element.innerHTML;
+                Prism.highlightAll();
+                attachActions(row, 'ai', text, true);
+            }, 300);
+        };
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(utter);
+        function highlightWord(idx, elem) {
+            elem.querySelectorAll('.speak-word').forEach((span, i) => {
+                span.classList.toggle('speak-cursor', i === idx);
+            });
+        }
+        function clearHighlights(elem) {
+            elem.querySelectorAll('.speak-word').forEach(span => {
+                span.classList.remove('speak-cursor');
+            });
+        }
     }
-    function clearHighlights(elem) {
-        elem.querySelectorAll('.speak-word').forEach(span => {
-            span.classList.remove('speak-cursor');
-        });
-    }
-}
-
     function submitPrompt(prompt, fromRequery=false) {
         lastUserPrompt = prompt;
         addMessage('user', prompt, false, true);
@@ -985,7 +952,6 @@ function speak(text, element, row) {
     window.addEventListener('resize', scrollChatToBottom);
     const observer = new MutationObserver(scrollChatToBottom);
     observer.observe(chatContainer, { childList: true, subtree: true });
-
     {% if reply %}
         lastUserPrompt = `{{ prompt|escapejs }}`;
         addMessage('user', lastUserPrompt, false, true);
