@@ -485,7 +485,7 @@
     <form id="chat_form" class="chat-input-bar" autocomplete="off">
         <div class="input-row">
             {% csrf_token %}
-            <button type="button" id="micBtn" class="mic-btn" title="Speak">
+            <button type="button" id="micBtn" class="mic-btn" title="Listen">
                 <img src="{% static 'imgs/mic.svg' %}" alt="Mic" id="micIcon"/>
             </button>
             <input type="text" name="prompt" id="prompt" class="input-prompt" maxlength="240" placeholder="Type your message..." autocomplete="off" />
