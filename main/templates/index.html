@@ -485,7 +485,7 @@
     <form id="chat_form" class="chat-input-bar" autocomplete="off">
         <div class="input-row">
             {% csrf_token %}
-            <button type="button" id="micBtn" class="mic-btn" title="Listen">
+            <button type="button" id="micBtn" class="mic-btn" title="Speak">
                 <img src="{% static 'imgs/mic.svg' %}" alt="Mic" id="micIcon"/>
             </button>
             <input type="text" name="prompt" id="prompt" class="input-prompt" maxlength="240" placeholder="Type your message..." autocomplete="off" />
@@ -738,12 +738,12 @@
             actions.className = "actions-row";
             let speakBtn = document.createElement('button');
             speakBtn.className = "speak-btn";
-            speakBtn.innerText = "🔈 Speak";
+            speakBtn.innerText = "🔈 Listen";
             speakBtn.onclick = () => speak(text, messageContent, row);
             actions.appendChild(speakBtn);
             let requeryBtn = document.createElement('button');
             requeryBtn.className = "requery-btn";
-            requeryBtn.innerText = "↻ Requery";
+            requeryBtn.innerText = "↻ Retry";
             requeryBtn.onclick = () => {
                 if (lastUserPrompt) {
                     requeryText = lastUserPrompt;
