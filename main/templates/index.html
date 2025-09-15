@@ -76,25 +76,11 @@
         .username-box { color: var(--secondary); font-weight: 700; font-size: 1rem; margin-right: 18px; background: #232526; border-radius: 8px; padding: 6px 16px; display: flex; align-items: center; gap: 12px;}
         .logout-btn { padding: 6px 15px; font-size: 1rem; font-family: var(--font-main); border-radius: 7px; border: 1px solid var(--secondary); background: var(--chat-bg); color: var(--secondary); cursor: pointer;}
         .logout-btn:hover { background: var(--secondary); color: #232526;}
-        main {
-            flex: 1;
-            width: 100vw;
+         main, .chat-outer, #chat_container {
             min-height: 0;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            background: var(--main-bg);
-        }
-        .chat-outer {
-            flex: 1 1 auto;
-            display: flex;
-            flex-direction: column;
-            width: 100vw;
-            min-height: 0;
-            position: relative;
-            /* No bottom padding here! Chat container must fill available space */
         }
         #chat_container {
+            /* Remove fixed height. Instead, use flex and padding-bottom to leave space for input bar */
             flex: 1 1 auto;
             width: 100vw;
             max-width: 100vw;
@@ -109,7 +95,15 @@
             padding: 20px 18px 0 18px;
             min-height: 0;
             position: relative;
-            /* No bottom padding! */
+            /* Padding bottom leaves space for the fixed input bar (height ~70px) */
+            padding-bottom: 90px;
+        }
+        @media (max-width: 900px) {
+            #chat_container { padding-bottom: 110px; }
+        }
+        @media (max-width: 600px) {
+            #chat_container { padding-bottom: 120px; }
+            .chat-input-bar { bottom: 0; }
         }
         .message-row {
             width: 100%;
