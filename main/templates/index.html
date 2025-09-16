@@ -934,6 +934,14 @@
             <img src="{% static 'imgs/stop.svg' %}" alt="stop" />
           </button>
         </div>
+        <!-- footer placed outside the form (valid HTML) -->
+      <footer>
+        <span style="color: white; font-size: 13px;">Sometimes incorrect, check facts.</span>
+        <br />
+        © {{ now|date:"Y" }} Developed by
+        <a href="https://codminds.com" style="text-decoration: none; color: var(--primary)" target="_blank" rel="noopener">CodMinds.com</a>
+      </footer>
+
       </form>
 
       <!-- typing indicator + scroll button -->
@@ -943,14 +951,6 @@
       </div>
 
       <button class="scroll-to-bottom" id="scrollBtn" title="Scroll to bottom" aria-label="Scroll to latest messages">↓ New</button>
-
-      <!-- footer placed outside the form (valid HTML) -->
-      <footer>
-        <span style="color: white; font-size: 13px;">Sometimes incorrect, check facts.</span>
-        <br />
-        © {{ now|date:"Y" }} Developed by
-        <a href="https://codminds.com" style="text-decoration: none; color: var(--primary)" target="_blank" rel="noopener">CodMinds.com</a>
-      </footer>
 
       <!-- LOGIN POPUP -->
       <div id="loginPopup" class="popup-bg" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="loginHeading">
