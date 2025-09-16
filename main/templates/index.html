@@ -1261,45 +1261,56 @@
   }
 
   function tick() {
-    if (!typingActive) {
-      element.innerHTML =
-        `<div class="ai-header"><img src="{% static 'imgs/bot.svg' %}" alt="AI" class="ai-icon">G CHAT</div>` +
-        formatMessage(text.slice(0, i));
-      attachCopyHandlers(element);
-      showSendButton();
-      attachActions(row, "ai", text);
-      // only scroll if user is already at bottom
-      if (isAtBottom()) scrollChatToBottom();
-      if (callback) callback();
-      return;
-    }
-
-    if (i <= text.length) {
-      element.innerHTML =
-        `<div class="ai-header"><img src="{% static 'imgs/bot.svg' %}" alt="AI" class="ai-icon">G CHAT</div>` +
-        formatMessage(text.slice(0, i)) +
-        '<span class="typing"></span>';
-
-      // ✅ auto-scroll only if user hasn't scrolled up
-      if (isAtBottom()) scrollChatToBottom();
-
-      i++;
-      typingTimer = setTimeout(tick, 1 + Math.random() * 3);
-    } else {
-      element.innerHTML =
-        `<div class="ai-header"><img src="{% static 'imgs/bot.svg' %}" alt="AI" class="ai-icon">G CHAT</div>` +
-        formatMessage(text);
-      Prism.highlightAll();
-      attachCopyHandlers(element);
-      showSendButton();
-      attachActions(row, "ai", text);
-      typingActive = false;
-      // ✅ scroll only if user was at bottom
-      if (isAtBottom()) scrollChatToBottom(true);
-      if (callback) callback();
-    }
+  if (!typingActive) {
+    element.innerHTML =
+      `<div class="ai-header"><img src="{% static 'imgs/bot.svg' %}" alt="AI" class="ai-icon">G CHAT</div>` +
+      formatMessage(text.slice(0, i));
+    attachCopyHandlers(element);
+    showSendButton();
+    attachActions(row, "ai", text);
+    if (isAtBottom()) scrollChatToBottom();
+    if (callback) callback();
+    return;
   }
-  tick();
+
+  if (i < text.length) {
+    // Determine batch size: 1–4 characters
+    let batchSize = Math.floor(Math.random() * 4) + 1;
+    const nextSlice = text.slice(i, i + batchSize);
+    i += batchSize;
+
+    element.innerHTML =
+      `<div class="ai-header"><img src="{% static 'imgs/bot.svg' %}" alt="AI" class="ai-icon">G CHAT</div>` +
+      formatMessage(text.slice(0, i)) +
+      '<span class="typing"></span>';
+
+    if (isAtBottom()) scrollChatToBottom();
+
+    // Delay logic
+    let delay = Math.random() * 5; // 0–5 ms base for fast typing
+
+    // If batch ends with punctuation, add natural pause
+    if (/[.,!?]/.test(nextSlice[nextSlice.length - 1])) {
+      delay += 80 + Math.random() * 120;
+    }
+
+    typingTimer = setTimeout(tick, delay);
+  } else {
+    // Finished typing
+    element.innerHTML =
+      `<div class="ai-header"><img src="{% static 'imgs/bot.svg' %}" alt="AI" class="ai-icon">G CHAT</div>` +
+      formatMessage(text);
+    Prism.highlightAll();
+    attachCopyHandlers(element);
+    showSendButton();
+    attachActions(row, "ai", text);
+    typingActive = false;
+    if (isAtBottom()) scrollChatToBottom(true);
+    if (callback) callback();
+  }
+}
+
+tick();
 }
 
 
@@ -1370,7 +1381,9 @@
 
   // create utterance
   const utter = new window.SpeechSynthesisUtterance(plainText);
-  utter.rate = 1.9;  // ✅ faster speed
+  utter.pitch = 1.2;    // slightly higher pitch
+  utter.volume = 1;     // max volume
+
 
   // highlight words while speaking
   utter.onboundary = function(event) {
