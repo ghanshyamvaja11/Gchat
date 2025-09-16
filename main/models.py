@@ -15,6 +15,8 @@ User = get_user_model()
 class RequestCount(models.Model):
     ip_address = models.CharField(
         max_length=45, blank=True, null=True)  # For anonymous
+    device_id = models.CharField(
+        max_length=100, null=True, blank=True)  # For anonymous
     user = models.ForeignKey(User, null=True, blank=True,
                              on_delete=models.CASCADE)  # For logged-in
     requests = models.PositiveIntegerField(default=0)

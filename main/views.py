@@ -1,3 +1,4 @@
+import uuid
 import pytz
 from datetime import timedelta
 from .utils import get_client_ip, get_now
@@ -142,18 +143,23 @@ def logout_view(request):
         logout(request)
     return redirect('index')
 
+
 def request_limit_check(request):
     now = get_now()
     user = request.user if request.user.is_authenticated else None
 
+    # Get device identifier from cookie or generate new
+    device_id = request.COOKIES.get('device_id')
+    if not device_id:
+        device_id = str(uuid.uuid4())  # generate unique ID for device
+
     if user:
         window = timedelta(hours=5)
         max_requests = 30
-        obj, created = RequestCount.objects.get_or_create(user=user, defaults={
+        obj, created = RequestCount.objects.get_or_create(user=user, device_id=device_id, defaults={
             'window_start': now,
             'requests': 0,
         })
-        # If window expired or not set, reset
         if obj.window_start is None or now - obj.window_start > window:
             obj.window_start = now
             obj.requests = 1
@@ -165,8 +171,6 @@ def request_limit_check(request):
             return True, None
         else:
             reset_time = obj.window_start + window
-            # Ensure reset_time is Asia/Kolkata tz aware
-            reset_time = reset_time.astimezone(ASIA_KOLKATA)
             wait_seconds = max(0, int((reset_time - now).total_seconds()))
             wait_hours = wait_seconds // 3600
             wait_minutes = (wait_seconds % 3600) // 60
@@ -179,7 +183,7 @@ def request_limit_check(request):
         window = timedelta(hours=24)
         max_requests = 5
         ip = get_client_ip(request)
-        obj, created = RequestCount.objects.get_or_create(ip_address=ip, defaults={
+        obj, created = RequestCount.objects.get_or_create(ip_address=ip, device_id=device_id, defaults={
             'window_start': now,
             'requests': 0,
         })
@@ -194,7 +198,6 @@ def request_limit_check(request):
             return True, None
         else:
             reset_time = obj.window_start + window
-            reset_time = reset_time.astimezone(ASIA_KOLKATA)
             wait_seconds = max(0, int((reset_time - now).total_seconds()))
             wait_hours = wait_seconds // 3600
             wait_minutes = (wait_seconds % 3600) // 60
