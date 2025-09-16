@@ -1,815 +1,1292 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8" />
-    <title>G Chat</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <link rel="icon" type="image/svg+xml" href="{% static 'imgs/bot.svg' %}">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Fira+Mono:wght@400;700&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+    <title>G Chat - an AI Assistent</title>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <link rel="icon" type="image/svg+xml" href="{% static 'imgs/bot.svg' %}" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Fira+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"
+      rel="stylesheet"
+    />
     <style>
-        :root {
-            --main-bg: linear-gradient(135deg, #232526 0%, #414345 100%);
-            --chat-bg: #24272c;
-            --ai-bg: #232526;
-            --user-bg: #1f2227;
-            --ai-border: #00cfff;
-            --user-border: #ffe066;
-            --input-bg: #24272c;
-            --input-focus: #2a2e36;
-            --primary: #00cfff;
-            --secondary: #ffe066;
-            --accent: #f8ffae;
-            --font-main: 'Montserrat', Arial, sans-serif;
-            --font-code: 'Fira Mono', 'Monaco', monospace;
-            --shadow: 0 8px 32px 0 rgba(0,0,0,0.15);
-        }
-        html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            background: var(--main-bg);
-            width: 100vw;
-            overflow: hidden;
-        }
-        body {
-            min-height: 100vh;
-            font-family: var(--font-main);
-            color: #fff;
-            display: flex;
-            flex-direction: column;
-            width: 100vw;
-            overflow: hidden;
-        }
-        header {
-            width: 100vw;
-            padding: 2px;
-            background: var(--chat-bg);
-            border-bottom: 1px solid #181a1f;
-            box-shadow: 0 2px 8px 0 rgba(0,0,0,0.08);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            height: 80px;
-            z-index: 10;
-        }
+      /* =========================
+         THEME VARIABLES (Dark by default)
+         ========================= */
+      :root {
+        --main-bg: linear-gradient(135deg, #232526 0%, #414345 100%);
+        --chat-bg: #24272c;
+        --ai-bg: #232526;
+        --user-bg: #1f2227;
+        --ai-border: #00cfff;
+        --user-border: #ffe066;
+        --input-bg: #24272c;
+        --input-focus: #2a2e36;
+        --primary: #00cfff;
+        --secondary: #ffe066;
+        --accent: #f8ffae;
+        --font-main: "Montserrat", Arial, sans-serif;
+        --font-code: "Fira Mono", "Monaco", monospace;
+        --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
+        --muted: #9aa3ad;
+        --success: #4caf50;
+        --danger: #e53935;
+      }
+
+      /* Light theme overrides */
+      [data-theme="light"] {
+        --main-bg: linear-gradient(135deg, #eef2f6 0%, #ffffff 100%);
+        --chat-bg: #f5f7fa;
+        --ai-bg: #ffffff;
+        --user-bg: #edf6ff;
+        --ai-border: #006bb3;
+        --user-border: #f0b429;
+        --input-bg: #ffffff;
+        --input-focus: #f0f3f5;
+        --primary: #006bb3;
+        --secondary: #f0b429;
+        --accent: #37474f;
+        --muted: #6b7280;
+        --success: #0b8457;
+        --danger: #c53030;
+      }
+
+      /* =========================
+         BASIC LAYOUT
+         ========================= */
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        background: var(--main-bg);
+        width: 100vw;
+        overflow: hidden;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      body {
+        min-height: 100vh;
+        font-family: var(--font-main);
+        color: #fff;
+        display: flex;
+        flex-direction: column;
+        width: 100vw;
+        overflow: hidden;
+      }
+
+      /* =========================
+         HEADER / TOP BAR
+         ========================= */
+      header {
+        width: 100vw;
+        padding: 6px 12px;
+        background: var(--chat-bg);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.28);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 72px;
+        z-index: 60;
+      }
+
+      .logo-bar {
+        font-size: 1.9rem;
+        font-weight: 700;
+        color: var(--primary);
+        letter-spacing: 1px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding-left: 18px;
+      }
+
+      .logo-bar img {
+        width: 54px;
+        height: 54px;
+      }
+
+      .auth-buttons {
+        display: flex;
+        gap: 8px;
+        padding-right: 18px;
+        align-items: center;
+      }
+
+      .auth-btn {
+        padding: 7px 9px;
+        font-size: 0.65rem;
+        font-family: var(--font-main);
+        border-radius: 8px;
+        border: 1px solid var(--primary);
+        background: transparent;
+        color: var(--primary);
+        cursor: pointer;
+        transition: 0.18s ease;
+      }
+
+      .auth-btn:hover {
+        background: var(--primary);
+        color: #232526;
+      }
+
+      .username-box {
+        color: var(--secondary);
+        font-weight: 700;
+        font-size: 0.65rem;
+        margin-right: 8px;
+        background: rgba(0, 0, 0, 0.12);
+        border-radius: 8px;
+        padding: 6px 0px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .logout-btn {
+        padding: 6px 6px;
+        font-size: 0.65rem;
+        font-family: var(--font-main);
+        border-radius: 8px;
+        border: 1px solid var(--secondary);
+        background: transparent;
+        color: var(--secondary);
+        cursor: pointer;
+      }
+
+      .logout-btn:hover {
+        background: var(--secondary);
+        color: #232526;
+      }
+
+      /* =========================
+         CHAT CONTAINER (flex main area)
+         ========================= */
+      main,
+      .chat-outer,
+      #chat_container {
+        min-height: 0;
+      }
+
+      #chat_container {
+        flex: 1 1 auto;
+        width: 100vw;
+        max-width: 100vw;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        background: var(--chat-bg);
+        box-sizing: border-box;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding: 20px 22px 0 22px;
+        min-height: 0;
+        position: relative;
+        padding-bottom: 120px; /* leave space for fixed input */
+      }
+
+      /* nice subtle vertical scrollbar styling */
+      #chat_container::-webkit-scrollbar {
+        width: 8px;
+      }
+      #chat_container::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.06);
+        border-radius: 8px;
+      }
+
+      /* =========================
+         MESSAGE ROWS
+         ========================= */
+      .message-row {
+        width: 100%;
+        margin: 0;
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+        margin-bottom: 10px;
+        padding: 0;
+        box-sizing: border-box;
+        max-width: 100%;
+      }
+
+      .profile-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: var(--primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        margin-top: 4px;
+      }
+
+      .ai .profile-icon {
+        background: var(--primary);
+      }
+
+      .user .profile-icon {
+        background: var(--secondary);
+      }
+
+      .profile-icon img {
+        width: 24px;
+        height: 24px;
+      }
+
+      .message-content {
+        flex: 1;
+        background: var(--user-bg);
+        color: #f7f7f7;
+        border-radius: 12px;
+        padding: 18px 20px;
+        font-size: 0.94rem;
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.09);
+        position: relative;
+        line-height: 1.6;
+        word-break: break-word;
+        border: 1.5px solid var(--user-border);
+        font-family: var(--font-main);
+        margin-bottom: 0;
+        max-width: 95%;
+        min-width: 0;
+        box-sizing: border-box;
+        overflow-wrap: anywhere;
+      }
+
+      .ai .message-content {
+        background: var(--ai-bg);
+        color: #e8f5ff;
+        border: 1.5px solid var(--ai-border);
+        font-size: 0.95rem;
+      }
+
+      .ai-header {
+        font-size: 1.06rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+      }
+
+      .ai-icon {
+        width: 20px;
+        height: 20px;
+      }
+
+      .ai-footer {
+        font-size: 0.92rem;
+        color: var(--primary);
+        margin-top: 12px;
+        text-align: right;
+      }
+
+      .message-content strong {
+        color: var(--primary);
+        font-weight: 700;
+      }
+
+      .message-content em {
+        color: var(--secondary);
+        font-style: italic;
+      }
+
+      /* code and pre styling */
+      .message-content code {
+        background: #191d22;
+        color: var(--secondary);
+        padding: 3px 10px;
+        border-radius: 6px;
+        font-size: 0.98em;
+        font-family: var(--font-code);
+      }
+
+      .message-content pre {
+        background: #111315;
+        color: #dff7ff;
+        border-radius: 8px;
+        font-family: var(--font-code);
+        font-size: 0.98em;
+        margin: 10px 0;
+        overflow-x: auto;
+        position: relative;
+        max-width: 100vw;
+        width: 100%;
+        min-width: 0;
+        white-space: pre;
+        box-sizing: border-box;
+        padding: 12px 14px;
+      }
+
+      .prism-block {
+        background: #111315;
+        border-radius: 8px;
+        margin: 10px 0;
+        padding: 12px 14px;
+        font-size: 0.98em;
+        font-family: var(--font-code);
+        overflow-x: auto;
+        position: relative;
+        max-width: 100vw;
+        width: 100%;
+      }
+
+      blockquote {
+        background: #2f3338;
+        color: var(--secondary);
+        padding: 10px 18px;
+        border-left: 3px solid var(--primary);
+        margin: 10px 0;
+        border-radius: 8px;
+        font-style: italic;
+        font-size: 1em;
+      }
+
+      img {
+        max-width: 100%;
+        border-radius: 8px;
+        margin: 10px 0;
+        box-shadow: 0 0 8px rgba(0, 0, 0, 0.28);
+      }
+
+      ul,
+      ol {
+        margin: 10px 0;
+        padding-left: 16px;
+        font-size: 1em;
+      }
+
+      li {
+        margin: 6px 0;
+      }
+
+      /* copy button for code blocks */
+      .copy-btn {
+        position: absolute;
+        top: 10px;
+        right: 12px;
+        background: var(--primary);
+        color: #24272c;
+        border: none;
+        border-radius: 6px;
+        padding: 6px 10px;
+        font-size: 0.92rem;
+        cursor: pointer;
+        z-index: 2;
+        opacity: 0.95;
+        font-family: var(--font-main);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .copy-btn.copied {
+        background: var(--secondary);
+        color: #232526;
+        font-weight: 700;
+      }
+
+      /* =========================
+         INPUT BAR (fixed to bottom)
+         ========================= */
+      .chat-input-bar {
+        width: 100vw;
+        max-width: 100vw;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        background: linear-gradient(180deg, rgba(0,0,0,0.04), rgba(255,255,255,0.02));
+        border-top: 1.2px solid rgba(0,0,0,0.25);
+        box-shadow: var(--shadow);
+        margin: 0;
+        z-index: 80;
+      }
+
+      .input-row {
+        width: 100vw;
+        max-width: 100vw;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 18px;
+        box-sizing: border-box;
+      }
+
+      .input-prompt {
+        flex: 1;
+        background: var(--input-bg);
+        color: #e1f7ff;
+        border: none;
+        outline: none;
+        border-radius: 12px;
+        padding: 12px 14px;
+        font-size: 1.02rem;
+        min-height: 42px;
+        box-sizing: border-box;
+        transition: background 0.18s;
+        font-family: var(--font-main);
+        resize: none;
+        max-height: 180px;
+        line-height: 1.35;
+        width: 100%;
+      }
+
+      .input-prompt::placeholder {
+        color: rgba(226, 247, 255, 0.45);
+      }
+
+      .input-prompt:focus {
+        background: var(--input-focus);
+      }
+
+      .mic-btn {
+        width: 42px;
+        height: 42px;
+        background: var(--input-bg);
+        border: none;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background 0.18s;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+      }
+
+      .mic-btn.recording {
+        background: var(--danger) !important;
+      }
+
+      .mic-btn img {
+        width: 20px;
+        height: 20px;
+      }
+
+      .send-btn {
+        width: 44px;
+        height: 44px;
+        background: var(--primary);
+        border: none;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: transform 0.12s ease;
+      }
+
+      .send-btn:active {
+        transform: scale(0.98);
+      }
+
+      .send-btn img {
+        width: 20px;
+        height: 20px;
+      }
+
+      .stop-btn {
+        width: 44px;
+        height: 44px;
+        background: var(--secondary);
+        border: none;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+      }
+
+      .stop-btn img {
+        width: 20px;
+        height: 20px;
+      }
+
+      /* =========================
+         ACTIONS ROW (Listen / Retry / Edit)
+         ========================= */
+      .actions-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 12px;
+        box-sizing: border-box;
+      }
+
+      .actions-row button {
+        padding: 8px 12px;
+        border-radius: 8px;
+        border: none;
+        background: var(--primary);
+        color: #24272b;
+        font-size: 0.98rem;
+        font-weight: 600;
+        font-family: var(--font-main);
+        cursor: pointer;
+        transition: background 0.15s;
+        opacity: 0.95;
+      }
+
+      .actions-row button.speak-btn {
+        background: var(--secondary);
+        color: #111;
+      }
+
+      .actions-row button.edit-btn {
+        background: rgba(0,0,0,0.45);
+        color: var(--secondary);
+        border: 1px solid var(--secondary);
+      }
+
+      .actions-row button.requery-btn {
+        background: var(--ai-border);
+        color: #fff;
+      }
+
+      /* Make actions visually separated on desktop */
+      .message-row .actions-row {
+        margin-left: 58px; /* align with message content */
+      }
+
+      /* =========================
+         TYPING INDICATOR & SCROLL BUTTON
+         ========================= */
+      .typing-indicator {
+        display: none;
+        padding: 8px 12px;
+        border-radius: 10px;
+        background: rgba(0,0,0,0.2);
+        color: var(--primary);
+        font-size: 0.95rem;
+        position: fixed;
+        bottom: 92px;
+        right: 22px;
+        z-index: 90;
+        box-shadow: 0 6px 18px rgba(0,0,0,0.28);
+      }
+
+      .typing-dots {
+        display: inline-block;
+        width: 48px;
+        text-align: center;
+      }
+      .typing-dots span {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        margin: 2px;
+        border-radius: 50%;
+        background: var(--primary);
+        opacity: 0.9;
+        transform: translateY(0);
+        animation: typingBounce 1s infinite ease-in-out;
+      }
+      .typing-dots span:nth-child(2) {
+        animation-delay: 0.15s;
+      }
+      .typing-dots span:nth-child(3) {
+        animation-delay: 0.3s;
+      }
+      @keyframes typingBounce {
+        0%, 80%, 100% { transform: translateY(0); opacity: 0.5; }
+        40% { transform: translateY(-6px); opacity: 1; }
+      }
+
+      .scroll-to-bottom {
+        position: fixed;
+        right: 18px;
+        bottom: 160px;
+        z-index: 90;
+        padding: 10px 12px;
+        border-radius: 10px;
+        background: rgba(0,0,0,0.28);
+        color: #fff;
+        display: none;
+        cursor: pointer;
+        box-shadow: 0 6px 18px rgba(0,0,0,0.24);
+      }
+
+      /* =========================
+         POPUP STYLES (Login / Signup)
+         ========================= */
+      .popup-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(11, 20, 40, 0.82);
+        z-index: 9999;
+        display: none;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .popup-bg.active {
+        display: flex;
+      }
+
+      .popup-form {
+        background: var(--chat-bg);
+        border-radius: 14px;
+        max-width: 420px;
+        width: 94vw;
+        padding: 28px 26px;
+        box-shadow: 0 16px 36px rgba(0,0,0,0.32);
+        position: relative;
+        color: #fff;
+        border: 2px solid var(--primary);
+      }
+
+      .popup-form h2 {
+        font-size: 1.4rem;
+        margin: 0 0 18px 0;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-align: center;
+        color: var(--primary);
+      }
+
+      .popup-form label {
+        font-size: 1rem;
+        margin-bottom: 6px;
+        display: block;
+        color: var(--secondary);
+        font-weight: 600;
+        margin-top: 8px;
+      }
+
+      .popup-form input[type="text"],
+      .popup-form input[type="password"],
+      .popup-form input[type="email"] {
+        width: 100%;
+        padding: 10px 12px;
+        border-radius: 8px;
+        border: 1.5px solid rgba(255,255,255,0.06);
+        background: #0f1416;
+        color: #fff;
+        font-size: 1rem;
+        font-family: var(--font-main);
+        box-shadow: none;
+        outline: none;
+      }
+
+      .popup-form input:focus {
+        border: 1.5px solid var(--primary);
+        background: #171b1d;
+      }
+
+      .password-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+      }
+      .password-eye-btn {
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+        height: 28px;
+      }
+      .password-eye-btn svg {
+        width: 22px;
+        height: 22px;
+        fill: var(--secondary);
+      }
+
+      .remember-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 8px;
+      }
+
+      .popup-form button[type="submit"] {
+        width: 100%;
+        padding: 12px 0;
+        border-radius: 8px;
+        background: linear-gradient(90deg, var(--primary) 60%, var(--secondary) 100%);
+        color: #232526;
+        border: none;
+        font-size: 1rem;
+        font-weight: 700;
+      }
+
+      .popup-extra {
+        margin-top: 12px;
+        text-align: center;
+        color: var(--secondary);
+      }
+
+      .popup-close {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        background: none;
+        border: none;
+        color: var(--secondary);
+        font-size: 1.6rem;
+        cursor: pointer;
+      }
+
+      /* =========================
+         FOOTER
+         ========================= */
+      footer {
+        width: 100vw;
+        text-align: center;
+        padding: 10px 0 16px 0;
+        font-size: 0.95rem;
+        color: var(--primary);
+        background: none;
+        letter-spacing: 1px;
+        z-index: 40;
+      }
+
+      /* =========================
+         RESPONSIVE BEHAVIOR
+         - On small screens we want the actions (listen/retry/edit)
+           to appear below the message bubble and stack vertically.
+         ========================= */
+      @media (max-width: 900px) {
         .logo-bar {
-            font-size: 2.2rem;
-            font-weight: 700;
-            color: var(--primary);
-            letter-spacing: 2px;
-            display: flex;
-            align-items: center;
-            height: 80px;
-            padding-left: 38px;
+          font-size: 1.1rem;
+          height: 42px;
+          padding-left: 10px;
         }
         .logo-bar img {
-            width: 70px;
-            height: 70px;
-            margin-right: 22px;
-        }
-        .auth-buttons { display: flex; gap: 12px; padding-right: 20px; align-items: center;}
-        .auth-btn { padding: 7px 20px; font-size: 1rem; font-family: var(--font-main); border-radius: 7px; border: 1px solid var(--primary); background: var(--chat-bg); color: var(--primary); cursor: pointer; transition: 0.25s;}
-        .auth-btn:hover { background: var(--primary); color: #232526; border: 1px solid var(--primary);}
-        .username-box { color: var(--secondary); font-weight: 700; font-size: 1rem; margin-right: 18px; background: #232526; border-radius: 8px; padding: 6px 16px; display: flex; align-items: center; gap: 12px;}
-        .logout-btn { padding: 6px 15px; font-size: 1rem; font-family: var(--font-main); border-radius: 7px; border: 1px solid var(--secondary); background: var(--chat-bg); color: var(--secondary); cursor: pointer;}
-        .logout-btn:hover { background: var(--secondary); color: #232526;}
-         main, .chat-outer, #chat_container {
-            min-height: 0;
+          width: 30px;
+          height: 30px;
         }
         #chat_container {
-            /* Remove fixed height. Instead, use flex and padding-bottom to leave space for input bar */
-            flex: 1 1 auto;
-            width: 100vw;
-            max-width: 100vw;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            background: var(--chat-bg);
-            box-sizing: border-box;
-            overflow-y: auto;
-            overflow-x: hidden;
-            padding: 20px 18px 0 18px;
-            min-height: 0;
-            position: relative;
-            /* Padding bottom leaves space for the fixed input bar (height ~70px) */
-            padding-bottom: 90px;
-        }
-        @media (max-width: 900px) {
-            #chat_container { padding-bottom: 110px; }
-        }
-        @media (max-width: 600px) {
-            #chat_container { padding-bottom: 120px; }
-            .chat-input-bar { bottom: 0; }
-        }
-        .message-row {
-            width: 100%;
-            margin: 0;
-            display: flex;
-            align-items: flex-start;
-            gap: 18px;
-            margin-bottom: 2px;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        .profile-icon {
-            width: 46px;
-            height: 46px;
-            border-radius: 50%;
-            background: var(--primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            margin-top: 2px;
-        }
-        .ai .profile-icon { background: var(--primary);}
-        .user .profile-icon { background: var(--secondary);}
-        .profile-icon img {
-            width: 26px;
-            height: 26px;
-        }
-        .message-content {
-            flex: 1;
-            background: var(--user-bg);
-            color: #f7f7f7;
-            border-radius: 13px;
-            padding: 20px 22px 20px 22px;
-            font-size: 0.9rem;
-            box-shadow: 0 5px 10px rgba(0,0,0,0.09);
-            position: relative;
-            line-height: 1.6;
-            word-break: break-word;
-            border: 1.5px solid var(--user-border);
-            font-family: var(--font-main);
-            margin-bottom: 0;
-            max-width: 95%;
-            min-width: 0;
-        }
-        .ai .message-content {
-            background: var(--ai-bg);
-            color: #e8f5ff;
-            border: 1.5px solid var(--ai-border);
-            font-size: 0.9rem;
-        }
-        .ai-header {
-            font-size: 1.14rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 7px;
-        }
-        .ai-icon {
-            width: 23px;
-            height: 23px;
-        }
-        .ai-footer {
-            font-size: 0.97rem;
-            color: #00cfff;
-            margin-top: 10px;
-            text-align: right;
-        }
-        .message-content strong { color: var(--primary); font-weight: 700; }
-        .message-content em { color: var(--secondary); font-style: italic; }
-        .message-content code {
-            background: #191d22;
-            color: var(--secondary);
-            padding: 3px 10px;
-            border-radius: 6px;
-            font-size: 1em;
-            font-family: var(--font-code);
-        }
-        .message-content pre {
-            background: #191d22;
-            color: #00cfff;
-            border-radius: 8px;
-            font-family: var(--font-code);
-            font-size: 1.01em;
-            margin: 10px 0;
-            overflow-x: auto;
-            position: relative;
-            max-width: 100vw;
-            width: 100%;
-            min-width: 0;
-            white-space: pre;
-            box-sizing: border-box;
-            padding: 13px 16px;
-        }
-        .prism-block {
-            background: #191d22;
-            border-radius: 8px;
-            margin: 10px 0;
-            padding: 13px 16px;
-            font-size: 1em;
-            font-family: var(--font-code);
-            overflow-x: auto;
-            position: relative;
-            max-width: 100vw;
-            width: 100%;
-        }
-        blockquote {
-            background: #323642;
-            color: #ffe066;
-            padding: 10px 18px;
-            border-left: 3px solid #00cfff;
-            margin: 10px 0;
-            border-radius: 8px;
-            font-style: italic;
-            font-size: 1em;
-        }
-        img {
-            max-width: 100vw;
-            border-radius: 8px;
-            margin: 10px 0;
-            box-shadow: 0 0 8px #181a1f;
-        }
-        ul, ol {
-            margin: 10px 0;
-            padding-left: 16px;
-            font-size: 1em;
-        }
-        li {
-            margin: 8px 0;
-        }
-        .copy-btn {
-            position: absolute;
-            top: 7px;
-            right: 12px;
-            background: var(--primary);
-            color: #24272c;
-            border: none;
-            border-radius: 5px;
-            padding: 3px 10px 3px 9px;
-            font-size: 1em;
-            cursor: pointer;
-            z-index: 2;
-            opacity: 0.85;
-            font-family: var(--font-main);
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-        .copy-btn.copied {
-            background: var(--secondary);
-            color: #232526;
-            font-weight: bold;
-        }
-        /* Fixed chat input bar at the very bottom, above everything */
-        .chat-input-bar {
-            width: 100vw;
-            max-width: 100vw;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            background: var(--chat-bg);
-            border-top: 1.5px solid #181a1f;
-            box-shadow: var(--shadow);
-            margin: 0;
-            z-index: 30;
+          padding-left: 10px;
+          padding-right: 10px;
         }
         .input-row {
-            width: 100vw;
-            max-width: 100vw;
-            margin: 0;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 12px 18px 12px 18px;
-            box-sizing: border-box;
+          padding-left: 10px;
+          padding-right: 10px;
         }
-        .input-prompt {
-            flex: 1;
-            background: var(--input-bg);
-            color: #e1f7ff;
-            border: none;
-            outline: none;
-            border-radius: 11px;
-            padding: 13px 17px;
-            font-size: 1.1rem;
-            min-height: 38px;
-            box-sizing: border-box;
-            transition: background 0.2s;
-            font-family: var(--font-main);
-            resize: none;
-            max-height: 140px;
-            line-height: 1.35;
-            width: 100%;
+      }
+
+      @media (max-width: 600px) {
+        .logo-bar {
+          font-size: 1rem;
+          padding-left: 8px;
+          height: 48px;
         }
-        .input-prompt:focus {
-            background: var(--input-focus);
+        .logo-bar img {
+          width: 22px;
+          height: 22px;
         }
-        .mic-btn {
-            width:36px; height:36px; background:var(--input-bg); border:none; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:background 0.2s;
+        #chat_container {
+          padding-left: 8px;
+          padding-right: 8px;
+          padding-bottom: 160px;
         }
-        .mic-btn.recording { background: #e53935 !important; }
-        .mic-btn img { width: 22px; height: 22px;}
-        .send-btn {
-            width:36px; height:36px; background:var(--primary); border:none; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:background 0.2s;
+        .chat-input-bar {
+          bottom: 0;
         }
-        .send-btn img { width: 22px; height: 22px;}
-        .stop-btn {
-            width:36px; height:36px; background:var(--secondary); border:none; border-radius:50%;
-            display:flex; align-items:center; justify-content:center; cursor:pointer; transition:background 0.2s;
+        .input-row {
+          gap: 8px;
+          padding: 8px 10px;
         }
-        .stop-btn img { width: 22px; height: 22px;}
+        .profile-icon {
+          width: 30px;
+          height: 30px;
+        }
+        .profile-icon img {
+          width: 16px;
+          height: 16px;
+        }
+        .message-content {
+          font-size: 0.95rem;
+          padding: 10px 12px;
+          border-radius: 10px;
+        }
+        .message-content pre {
+          max-width: 100vw;
+          min-width: 50px;
+          font-size: 0.9em;
+        }
         .actions-row {
-            margin-top: 18px;
-            display: flex;
-            gap: 8px;
+          flex-direction: column;
+          gap: 8px;
+          margin-left: 0 !important;
+          margin-top: 10px;
+        }
+        /* Make the actions appear *under* the message on mobile */
+        .message-row .actions-row {
+          order: 99;
+          width: 100%;
+          margin-left: 0;
         }
         .actions-row button {
-            padding: 6px 14px;
-            border-radius: 7px;
-            border: none;
-            background: var(--primary);
-            color: #24272c;
-            font-size: 1rem;
-            font-weight: 600;
-            font-family: var(--font-main);
-            cursor: pointer;
-            transition: background 0.2s;
-            opacity: 0.95;
+          width: 100%;
+          padding: 10px;
+          font-size: 0.95rem;
         }
-        .actions-row button.speak-btn {
-            background: var(--secondary);
-            color: #222;
+        .input-prompt {
+          min-height: 44px;
+          font-size: 1rem;
         }
-        .actions-row button.edit-btn {
-            background: #24272c;
-            color: #ffe066;
-            border:1px solid #ffe066;
+        .send-btn, .stop-btn, .mic-btn {
+          width: 44px;
+          height: 44px;
         }
-        .actions-row button.requery-btn {
-            background: var(--ai-border);
-            color: #fff;
+        .typing-indicator {
+          right: 12px;
+          bottom: 116px;
         }
-        footer {
-            width: 100vw;
-            text-align: center;
-            padding: 8px 0 0 0;
-            font-size: 0.95rem;
-            color: var(--primary);
-            background: none;
-            letter-spacing: 1px;
-            z-index: 40;
+        .scroll-to-bottom {
+          bottom: 140px;
         }
-        @media (max-width: 900px) {
-            .logo-bar { font-size: 1.2rem; height: 42px; padding-left: 10px;}
-            .logo-bar img {width: 26px; height: 26px;}
-            .message-row, .input-row, #chat_container, .chat-input-bar { max-width: 100vw; }
-            .message-content, .message-content pre { max-width: 100vw; }
-            #chat_container {padding-left: 7px; padding-right: 7px;}
-            .input-row {padding-left: 7px; padding-right: 7px;}
-        }
-        @media (max-width: 600px) {
-            .logo-bar { font-size: 1rem; padding-left:4px;height:32px;}
-            .logo-bar img {width:18px;height:18px;margin-right:3px;}
-            #chat_container, .chat-input-bar { padding: 1px;}
-            .chat-input-bar { bottom: 0;}
-            .input-row {gap:5px;padding:6px 0;}
-            .profile-icon { width:22px; height:22px;}
-            .profile-icon img { width:13px;height:13px;}
-            .message-content { font-size:0.96rem; padding:8px 9px 8px 9px;}
-            .message-content pre { max-width: 100vw; min-width: 40px; font-size:0.9em;}
-            .prism-block {font-size:0.9em;}
-            .actions-row button {font-size:0.86rem;padding:4px 8px;}
-            .ai-header {font-size:1rem;}
-            .ai-footer {font-size:0.82rem;}
-        }
-        .speak-word.speak-cursor {
-            background: var(--secondary);
-            color: #232526;
-            border-radius: 3px;
-            box-shadow: 0 0 4px #ffe066;
-            transition: background 0.1s;
-        }
-        /* Popup styles (same as before) */
-        .popup-bg { position: fixed; top:0; left:0; width:100vw; height:100vh; background: rgba(11,20,40,0.82); z-index: 9999; display: none; align-items: center; justify-content: center; }
-        .popup-bg.active { display: flex; }
-        .popup-form { background: var(--chat-bg); border-radius: 17px; max-width: 370px; width: 94vw; padding: 34px 32px 32px 32px; box-shadow: 0 16px 36px 0 rgba(0,0,0,0.32); position: relative; color: #fff; border: 2.5px solid var(--primary);}
-        .popup-form h2 { font-size: 1.5rem; margin: 0 0 20px 0; font-weight: 700; letter-spacing: 1px; text-align: center; color: var(--primary); text-shadow: 0 2px 10px #232526;}
-        .popup-form label { font-size: 1.08rem; margin-bottom: 6px; display: block; color: #ffe066; font-weight: 600; margin-top: 7px;}
-        .popup-form .password-wrapper {
-            position: relative;
-            display: flex;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        .popup-form input[type="text"],
-        .popup-form input[type="password"],
-        .popup-form input[type="email"] {
-            width: 92%;
-            padding: 11px 13px;
-            border-radius: 8px;
-            border: 1.5px solid var(--primary);
-            background: #191d22;
-            color: #fff;
-            font-size: 1.08rem;
-            font-family: var(--font-main);
-            box-shadow: 0 2px 6px rgba(0,0,0,0.09);
-            outline: none;
-            transition: border 0.18s;
-        }
-        .popup-form input:focus { border: 1.5px solid var(--secondary); background: #232526;}
-        .password-eye-btn {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            cursor: pointer;
-            z-index: 2;
-            padding: 0;
-            margin: 0;
-            height: 28px;
-            display: flex;
-            align-items: center;
-        }
-        .password-eye-btn svg {
-            width: 23px;
-            height: 23px;
-            fill: var(--secondary);
-            transition: fill 0.2s;
-        }
-        .password-eye-btn:active svg, .password-eye-btn:focus svg {
-            fill: var(--primary);
-        }
-        .remember-row { display: flex; align-items: center; gap: 7px; margin-bottom: 13px;}
-        .popup-form input[type="checkbox"] { accent-color: var(--primary); width: 20px; height: 20px;}
-        .remember-label { color: var(--secondary); font-size: 1.03rem; font-weight: 600; cursor: pointer;}
-        .popup-form button[type="submit"] { width: 100%; padding: 13px 0; border-radius: 8px; background: linear-gradient(90deg, var(--primary) 60%, var(--secondary) 100%); color: #232526; border: none; font-size: 1.09rem; font-weight: 700; cursor: pointer; margin-top: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.14); transition: background 0.18s;}
-        .popup-form button[type="submit"]:hover { background: linear-gradient(90deg, var(--secondary) 60%, var(--primary) 100%);}
-        .popup-close { position: absolute; top: 16px; right: 20px; background: none; border: none; color: var(--secondary); font-size: 2rem; font-weight: 900; cursor: pointer; font-family: var(--font-main); z-index: 2; transition: color 0.18s;}
-        .popup-close:hover { color: var(--primary); text-shadow: 0 1px 8px #ffe066;}
-        .popup-form .popup-extra { font-size: 1.03rem; margin-top: 20px; text-align: center; color: #ffe066; font-weight: 500;}
-        .popup-form .popup-extra a { color: var(--primary); text-decoration: underline; cursor: pointer; font-weight: 700;}
-        .popup-form .popup-extra a:hover { color: var(--secondary);}
-    </style>
-</head>
-<body>
-<header>
-    <div class="logo-bar">
-        <img src="{% static 'imgs/bot.svg' %}" alt="G Chat">
-        G Chat
-    </div>
-    <div class="auth-buttons">
-        {% if user.is_authenticated %}
-            <span class="username-box">
-                {{ user.username }}
-                <form method="post" action="{% url 'logout' %}" style="display:inline;">
-                    {% csrf_token %}
-                    <button type="submit" class="logout-btn">Logout</button>
-                </form>
-            </span>
-        {% else %}
-            <button class="auth-btn" id="loginBtn">Login</button>
-            <button class="auth-btn" id="signupBtn">Sign Up</button>
-        {% endif %}
-    </div>
-</header>
-<main>
-    <div class="chat-outer">
-        <div id="chat_container"></div>
-    </div>
-    <form id="chat_form" class="chat-input-bar" autocomplete="off">
-        <div class="input-row">
-            {% csrf_token %}
-            <button type="button" id="micBtn" class="mic-btn" title="Speak">
-                <img src="{% static 'imgs/mic.svg' %}" alt="Mic" id="micIcon"/>
-            </button>
-            <input type="text" name="prompt" id="prompt" class="input-prompt" maxlength="240" placeholder="Type your message..." autocomplete="off" />
-            <button type="submit" class="send-btn" id="sendBtn" title="Send">
-                <img src="{% static 'imgs/send.svg' %}" alt="send" />
-            </button>
-            <button type="button" class="stop-btn" id="stopBtn" title="Stop" style="display:none;">
-                <img src="{% static 'imgs/stop.svg' %}" alt="stop" />
-            </button>
-        </div>
-        <footer>
-            <span style="color: white; font-size: 15px;">Sometimes incorrect, check facts.</span><br>
-            © {{ now|date:"Y" }} Developed by <a href="https://codminds.com" style="text-decoration: none; color:#00cfff;">CodMinds.com</a>
-        </footer>
-    </form>
-    <!-- Popups unchanged -->
-    <div id="loginPopup" class="popup-bg">
-        <form class="popup-form" method="post" action="{% url 'login' %}">
-            {% csrf_token %}
-            <button class="popup-close" type="button" onclick="closePopup('loginPopup')">&times;</button>
-            <h2>Login</h2>
-            <label for="login_username">Username</label>
-            <input type="text" name="username" id="login_username" required autocomplete="username"/>
-            <label for="login_password">Password</label>
-            <div class="password-wrapper">
-                <input type="password" name="password" id="login_password" required autocomplete="current-password"/>
-                <button type="button" tabindex="-1" class="password-eye-btn" onclick="togglePassword('login_password', this)" aria-label="Show password">
-                    <span class="eye-open" style="display:inline">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                            <path d="M12 5c-7 0-9 7-9 7s2 7 9 7 9-7 9-7-2-7-9-7zm0 12c-4.418 0-7.053-3.253-7.781-5 .728-1.747 3.363-5 7.781-5 4.418 0 7.053 3.253 7.781 5-.728 1.747-3.363 5-7.781 5zm0-8a3 3 0 100 6 3 3 0 000-6zm0 5a2 2 0 110-4 2 2 0 010 4z"/>
-                        </svg>
-                    </span>
-                    <span class="eye-closed" style="display:none">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                            <path d="M12 7c-5.514 0-8.606 5.119-8.93 5.679a1.002 1.002 0 000 1.063c.324.561 3.416 5.679 8.93 5.679 5.513 0 8.606-5.118 8.93-5.679a1 1 0 000-1.063c-.324-.56-3.417-5.679-8.93-5.679zm0 10c-4.418 0-7.053-3.253-7.781-5 .728-1.747 3.363-5 7.781-5 4.418 0 7.053 3.253 7.781 5-.728 1.747-3.363 5-7.781 5zm-5.293-8.707a1 1 0 111.414 1.414l-1.414-1.414zm10.586 0a1 1 0 11-1.414 1.414l1.414-1.414z"/>
-                        </svg>
-                    </span>
-                </button>
-            </div>
-            <div class="remember-row">
-                <input type="checkbox" name="remember_me" id="remember_me" />
-                <label for="remember_me" class="remember-label">Remember me for 30 days</label>
-            </div>
-            <button type="submit">Login</button>
-            <div class="popup-extra">
-                Don't have an account? <a onclick="switchPopup('loginPopup','signupPopup')">Sign Up</a>
-            </div>
-        </form>
-    </div>
-    <div id="signupPopup" class="popup-bg">
-        <form class="popup-form" method="post" action="{% url 'signup' %}">
-            {% csrf_token %}
-            <button class="popup-close" type="button" onclick="closePopup('signupPopup')">&times;</button>
-            <h2>Sign Up</h2>
-            <label for="signup_username">Username</label>
-            <input type="text" name="username" id="signup_username" required autocomplete="username"/>
-            <label for="signup_email">Email</label>
-            <input type="email" name="email" id="signup_email" required autocomplete="email"/>
-            <label for="signup_password">Password</label>
-            <div class="password-wrapper">
-                <input type="password" name="password" id="signup_password" required autocomplete="new-password"/>
-                <button type="button" tabindex="-1" class="password-eye-btn" onclick="togglePassword('signup_password', this)" aria-label="Show password">
-                    <span class="eye-open" style="display:inline">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                            <path d="M12 5c-7 0-9 7-9 7s2 7 9 7 9-7 9-7-2-7-9-7zm0 12c-4.418 0-7.053-3.253-7.781-5 .728-1.747 3.363-5 7.781-5 4.418 0 7.053 3.253 7.781 5-.728 1.747-3.363 5-7.781 5zm0-8a3 3 0 100 6 3 3 0 000-6zm0 5a2 2 0 110-4 2 2 0 010 4z"/>
-                        </svg>
-                    </span>
-                    <span class="eye-closed" style="display:none">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                            <path d="M12 7c-5.514 0-8.606 5.119-8.93 5.679a1.002 1.002 0 000 1.063c.324.561 3.416 5.679 8.93 5.679 5.513 0 8.606-5.118 8.93-5.679a1 1 0 000-1.063c-.324-.56-3.417-5.679-8.93-5.679zm0 10c-4.418 0-7.053-3.253-7.781-5 .728-1.747 3.363-5 7.781-5 4.418 0 7.053 3.253 7.781 5-.728 1.747-3.363 5-7.781 5zm-5.293-8.707a1 1 0 111.414 1.414l-1.414-1.414zm10.586 0a1 1 0 11-1.414 1.414l1.414-1.414z"/>
-                        </svg>
-                    </span>
-                </button>
-            </div>
-            <button type="submit">Sign Up</button>
-            <div class="popup-extra">
-                Already have an account? <a onclick="switchPopup('signupPopup','loginPopup')">Login</a>
-            </div>
-        </form>
-    </div>
-</main>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-<script>
-    // Popup logic
-    function openPopup(id) { document.getElementById(id).classList.add('active'); }
-    function closePopup(id) { document.getElementById(id).classList.remove('active'); }
-    function switchPopup(closeId, openId) { closePopup(closeId); openPopup(openId); }
-    if(document.getElementById('loginBtn'))
-        document.getElementById('loginBtn').onclick = function(){ openPopup('loginPopup'); };
-    if(document.getElementById('signupBtn'))
-        document.getElementById('signupBtn').onclick = function(){ openPopup('signupPopup'); };
-    document.querySelectorAll('.popup-bg').forEach(bg => {
-        bg.addEventListener('click', function(e){
-            if(e.target === bg) closePopup(bg.id);
-        });
-    });
+      }
 
-    function togglePassword(inputId, btn) {
+      /* small accessibility focus styles */
+      button:focus, input:focus, textarea:focus {
+        outline: 3px solid rgba(0, 0, 0, 0.12);
+        outline-offset: 2px;
+      }
+
+      /* end of styles */
+    </style>
+  </head>
+  <body data-theme="dark">
+    <header>
+      <div class="logo-bar" role="banner">
+        <img src="{% static 'imgs/bot.svg' %}" alt="G Chat logo" />
+        <span>G Chat</span>
+      </div>
+
+      <div class="auth-buttons" role="navigation" aria-label="User controls">
+        {% if user.is_authenticated %}
+        <span class="username-box" aria-live="polite">
+          {{ user.username }}
+          <form method="post" action="{% url 'logout' %}" style="display: inline;">
+            {% csrf_token %}
+            <button type="submit" class="logout-btn" aria-label="Logout">Logout</button>
+          </form>
+        </span>
+        {% else %}
+        <button class="auth-btn" id="loginBtn" aria-haspopup="dialog" aria-controls="loginPopup">Login</button>
+        <button class="auth-btn" id="signupBtn" aria-haspopup="dialog" aria-controls="signupPopup">Sign Up</button>
+        {% endif %}
+        <button id="themeToggle" class="auth-btn" aria-label="Toggle theme">🌗</button>
+      </div>
+    </header>
+
+    <main>
+        {% if login_error %}
+      <center><span style="color: red; font-size: 15px;">{{login_error}}</span><center><br>
+      {% endif %}
+      <div class="chat-outer" aria-live="polite">
+        <div id="chat_container" role="log" aria-live="polite" aria-relevant="additions"></div>
+      </div>
+
+      <!-- chat input bar -->
+      <form id="chat_form" class="chat-input-bar" autocomplete="off" role="form" aria-label="Chat form">
+        <div class="input-row">
+          {% csrf_token %}
+          <button type="button" id="micBtn" class="mic-btn" title="Speak" aria-label="Start voice input">
+            <img src="{% static 'imgs/mic.svg' %}" alt="Mic" id="micIcon" />
+          </button>
+
+          <input
+            type="text"
+            name="prompt"
+            id="prompt"
+            class="input-prompt"
+            maxlength="240"
+            placeholder="Type your message..."
+            autocomplete="off"
+            aria-label="Message input"
+          />
+
+          <button type="submit" class="send-btn" id="sendBtn" title="Send" aria-label="Send message">
+            <img src="{% static 'imgs/send.svg' %}" alt="send" />
+          </button>
+
+          <button
+            type="button"
+            class="stop-btn"
+            id="stopBtn"
+            title="Stop"
+            aria-label="Stop generation"
+            style="display: none"
+          >
+            <img src="{% static 'imgs/stop.svg' %}" alt="stop" />
+          </button>
+        </div>
+      </form>
+
+      <!-- typing indicator + scroll button -->
+      <div class="typing-indicator" id="typingIndicator" aria-hidden="true">
+        <span id="typingText">AI is typing</span>
+        <span class="typing-dots" aria-hidden="true"><span></span><span></span><span></span></span>
+      </div>
+
+      <button class="scroll-to-bottom" id="scrollBtn" title="Scroll to bottom" aria-label="Scroll to latest messages">↓ New</button>
+
+      <!-- footer placed outside the form (valid HTML) -->
+      <footer>
+        <span style="color: white; font-size: 13px;">Sometimes incorrect, check facts.</span>
+        <br />
+        © {{ now|date:"Y" }} Developed by
+        <a href="https://codminds.com" style="text-decoration: none; color: var(--primary)" target="_blank" rel="noopener">CodMinds.com</a>
+      </footer>
+
+      <!-- LOGIN POPUP -->
+      <div id="loginPopup" class="popup-bg" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="loginHeading">
+        <form class="popup-form" method="post" action="{% url 'login' %}" id="loginForm">
+          {% csrf_token %}
+          <button class="popup-close" type="button" onclick="closePopup('loginPopup')" aria-label="Close login dialog">&times;</button>
+          <h2 id="loginHeading">Login</h2>
+
+          <label for="login_username">Username</label>
+          <input type="text" name="username" id="login_username" required autocomplete="username" />
+
+          <label for="login_password">Password</label>
+          <div class="password-wrapper">
+            <input type="password" name="password" id="login_password" required autocomplete="current-password" />
+            <button type="button" tabindex="-1" class="password-eye-btn" onclick="togglePassword('login_password', this)" aria-label="Show password">
+              <span class="eye-open" style="display: inline">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 5c-7 0-9 7-9 7s2 7 9 7 9-7 9-7-2-7-9-7zm0 12c-4.418 0-7.053-3.253-7.781-5 .728-1.747 3.363-5 7.781-5 4.418 0 7.053 3.253 7.781 5-.728 1.747-3.363 5-7.781 5zm0-8a3 3 0 100 6 3 3 0 000-6z"/></svg>
+              </span>
+              <span class="eye-closed" style="display: none">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7c-5.514 0-8.606 5.119-8.93 5.679a1.002 1.002 0 000 1.063c.324.561 3.416 5.679 8.93 5.679 5.513 0 8.606-5.118 8.93-5.679a1 1 0 000-1.063c-.324-.56-3.417-5.679-8.93-5.679z"/></svg>
+              </span>
+            </button>
+          </div>
+
+          <div class="remember-row">
+            <input type="checkbox" name="remember_me" id="remember_me" />
+            <label for="remember_me" class="remember-label">Remember me for 30 days</label>
+          </div>
+
+          <button type="submit">Login</button>
+
+          <div class="popup-extra">
+            Don't have an account? <a onclick="switchPopup('loginPopup','signupPopup')" role="button">Sign Up</a>
+          </div>
+        </form>
+      </div>
+
+      <!-- SIGNUP POPUP -->
+      <div id="signupPopup" class="popup-bg" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="signupHeading">
+        <form class="popup-form" method="post" action="{% url 'signup' %}" id="signupForm">
+          {% csrf_token %}
+          <button class="popup-close" type="button" onclick="closePopup('signupPopup')" aria-label="Close signup dialog">&times;</button>
+          <h2 id="signupHeading">Sign Up</h2>
+
+          <label for="signup_username">Username</label>
+          <input type="text" name="username" id="signup_username" required autocomplete="username" />
+
+          <label for="signup_email">Email</label>
+          <input type="email" name="email" id="signup_email" required autocomplete="email" />
+
+          <label for="signup_password">Password</label>
+          <div class="password-wrapper">
+            <input type="password" name="password" id="signup_password" required autocomplete="new-password" />
+            <button type="button" tabindex="-1" class="password-eye-btn" onclick="togglePassword('signup_password', this)" aria-label="Show password">
+              <span class="eye-open" style="display: inline">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 5c-7 0-9 7-9 7s2 7 9 7 9-7 9-7-2-7-9-7zm0 12c-4.418 0-7.053-3.253-7.781-5 .728-1.747 3.363-5 7.781-5 4.418 0 7.053 3.253 7.781 5-.728 1.747-3.363 5-7.781 5zm0-8a3 3 0 100 6 3 3 0 000-6z"/></svg>
+              </span>
+              <span class="eye-closed" style="display: none">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7c-5.514 0-8.606 5.119-8.93 5.679a1.002 1.002 0 000 1.063c.324.561 3.416 5.679 8.93 5.679 5.513 0 8.606-5.118 8.93-5.679a1 1 0 000-1.063c-.324-.56-3.417-5.679-8.93-5.679z"/></svg>
+              </span>
+            </button>
+          </div>
+
+          <button type="submit">Sign Up</button>
+          <div class="popup-extra">Already have an account? <a onclick="switchPopup('signupPopup','loginPopup')" role="button">Login</a></div>
+        </form>
+      </div>
+
+    </main>
+
+    <!-- external libs -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <script>
+      /* =========================
+         Utility + Popup Logic
+         ========================= */
+      function openPopup(id) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.classList.add('active');
+        el.setAttribute('aria-hidden', 'false');
+        // focus the first input for accessibility
+        const firstInput = el.querySelector('input, button, textarea, select');
+        if (firstInput) firstInput.focus();
+      }
+      function closePopup(id) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.classList.remove('active');
+        el.setAttribute('aria-hidden', 'true');
+      }
+      function switchPopup(closeId, openId) {
+        closePopup(closeId);
+        openPopup(openId);
+      }
+      if (document.getElementById('loginBtn')) document.getElementById('loginBtn').onclick = function(){ openPopup('loginPopup'); };
+      if (document.getElementById('signupBtn')) document.getElementById('signupBtn').onclick = function(){ openPopup('signupPopup'); };
+      document.querySelectorAll('.popup-bg').forEach(bg => {
+        bg.addEventListener('click', function(e){
+          if (e.target === bg) closePopup(bg.id);
+        });
+      });
+
+      function togglePassword(inputId, btn) {
         var input = document.getElementById(inputId);
         var eyeOpen = btn.querySelector('.eye-open');
         var eyeClosed = btn.querySelector('.eye-closed');
+        if (!input) return;
         if (input.type === "password") {
-            input.type = "text";
-            eyeOpen.style.display = "none";
-            eyeClosed.style.display = "inline";
+          input.type = "text";
+          if (eyeOpen) eyeOpen.style.display = "none";
+          if (eyeClosed) eyeClosed.style.display = "inline";
         } else {
-            input.type = "password";
-            eyeOpen.style.display = "inline";
-            eyeClosed.style.display = "none";
+          input.type = "password";
+          if (eyeOpen) eyeOpen.style.display = "inline";
+          if (eyeClosed) eyeClosed.style.display = "none";
         }
-    }
+      }
 
-    function formatMessage(text) {
-        return marked.parse(text, {gfm: true, breaks: true});
-    }
-    function escapeHtml(text) {
-        return text.replace(/[&<>"']/g, function(m) {
-            return ({
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#39;'
-            })[m];
+      function formatMessage(text) {
+        try {
+          return marked.parse(text || '', {gfm: true, breaks: true});
+        } catch (e) {
+          return text;
+        }
+      }
+
+      function escapeHtml(text) {
+        return String(text).replace(/[&<>"']/g, function(m) {
+          return ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+          })[m];
         });
-    }
+      }
 
-    // Ensure chat container height excludes input bar!
-    const chatContainer = document.getElementById('chat_container');
-    const chatInputBar = document.querySelector('.chat-input-bar');
-    function resizeChatContainer() {
-        const barHeight = chatInputBar.offsetHeight;
-        chatContainer.style.height = "calc(100vh - " + barHeight + "px - 80px)";
-        chatContainer.style.maxHeight = "calc(100vh - " + barHeight + "px - 80px)";
-    }
-    window.addEventListener('resize', resizeChatContainer);
-    document.addEventListener('DOMContentLoaded', resizeChatContainer);
-    resizeChatContainer();
+      /* =========================
+         Layout sizing helpers
+         ========================= */
+      const chatContainer = document.getElementById('chat_container');
+      const chatInputBar = document.querySelector('.chat-input-bar');
 
-    // Chat logic
-    const form = document.getElementById('chat_form');
-    let promptInput = document.getElementById('prompt');
-    let lastUserPrompt = "";
-    let requeryText = null;
+      function resizeChatContainer() {
+        const barHeight = chatInputBar ? chatInputBar.offsetHeight : 80;
+        // subtract header height (~72px)
+        chatContainer.style.height = "calc(100vh - " + barHeight + "px - 72px)";
+        chatContainer.style.maxHeight = "calc(100vh - " + barHeight + "px - 72px)";
+      }
+      window.addEventListener('resize', resizeChatContainer);
+      document.addEventListener('DOMContentLoaded', resizeChatContainer);
+      resizeChatContainer();
 
-    function switchToTextareaIfNeeded() {
-        if (promptInput.tagName.toLowerCase() === 'textarea') return;
-        let testSpan = document.createElement('span');
-        testSpan.style.visibility = 'hidden';
-        testSpan.style.position = 'absolute';
-        testSpan.style.fontFamily = window.getComputedStyle(promptInput).fontFamily;
-        testSpan.style.fontSize = window.getComputedStyle(promptInput).fontSize;
-        testSpan.style.whiteSpace = 'pre';
-        testSpan.textContent = promptInput.value;
-        document.body.appendChild(testSpan);
-        const inputWidth = promptInput.offsetWidth - 30;
-        if (testSpan.offsetWidth > inputWidth || promptInput.value.indexOf('\n') !== -1) {
-            let textarea = document.createElement('textarea');
-            textarea.id = 'prompt';
-            textarea.name = 'prompt';
-            textarea.className = promptInput.className;
-            textarea.setAttribute('maxlength', promptInput.getAttribute('maxlength'));
-            textarea.setAttribute('placeholder', promptInput.getAttribute('placeholder'));
-            textarea.setAttribute('autocomplete', promptInput.getAttribute('autocomplete'));
-            textarea.value = promptInput.value;
-            promptInput.parentNode.replaceChild(textarea, promptInput);
-            promptInput = textarea;
-            promptInput.focus();
-            promptInput.addEventListener('input', autoResizeTextarea);
-        }
-        document.body.removeChild(testSpan);
-    }
-    function autoResizeTextarea() {
-        this.style.height = 'auto';
-        this.style.height = Math.min(this.scrollHeight, 140) + 'px';
-    }
-    if (promptInput.tagName.toLowerCase() === 'textarea') {
-        promptInput.addEventListener('input', autoResizeTextarea);
-    }
-    promptInput.addEventListener('input', switchToTextareaIfNeeded);
+      /* =========================
+         Message rendering + typing simulation
+         ========================= */
+      let lastUserPrompt = "";
+      let requeryText = null;
+      let typingActive = false;
+      let typingTimer = null;
 
-    let typingActive = false;
-    let typingTimer = null;
-
-    function isUserAtBottom() {
+      function isUserAtBottom() {
         const tolerance = 40;
         return (chatContainer.scrollHeight - chatContainer.scrollTop - chatContainer.clientHeight) < tolerance;
-    }
+      }
 
-    function typeMessage(element, text, callback, row) {
-        let i = 0;
-        typingActive = true;
-        showStopButton();
-        function scrollChatToBottom() {
-            requestAnimationFrame(() => {
-                chatContainer.scrollTop = chatContainer.scrollHeight;
-            });
+      function scrollChatToBottom(smooth = false) {
+        if (smooth) {
+          chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' });
+        } else {
+          chatContainer.scrollTop = chatContainer.scrollHeight;
         }
-        function typing() {
-            if (!typingActive) {
-                element.innerHTML = `<div class="ai-header"><img src="{% static 'imgs/bot.svg' %}" alt="AI" class="ai-icon">G CHAT</div>`
-                    + formatMessage(text.slice(0, i));
-                attachCopyHandlers(element);
-                showSendButton();
-                attachActions(row, 'ai', text, true);
-                scrollChatToBottom();
-                if (callback) callback();
-                return;
-            }
-            if (i <= text.length) {
-                element.innerHTML = `<div class="ai-header"><img src="{% static 'imgs/bot.svg' %}" alt="AI" class="ai-icon">G CHAT</div>`
-                    + formatMessage(text.slice(0, i)) + '<span class="typing"></span>';
-                scrollChatToBottom();
-                i++;
-                typingTimer = setTimeout(typing, 8 + Math.random() * 9);
-            } else {
-                element.innerHTML = `<div class="ai-header"><img src="{% static 'imgs/bot.svg' %}" alt="AI" class="ai-icon">G CHAT</div>`
-                    + formatMessage(text);
-                Prism.highlightAll();
-                attachCopyHandlers(element);
-                showSendButton();
-                attachActions(row, 'ai', text, true);
-                typingActive = false;
-                scrollChatToBottom();
-                if (callback) callback();
-            }
-        }
-        typing();
-    }
-    function showStopButton() {
-        document.getElementById('sendBtn').style.display = 'none';
-        document.getElementById('stopBtn').style.display = 'flex';
-    }
-    function showSendButton() {
-        document.getElementById('sendBtn').style.display = 'flex';
-        document.getElementById('stopBtn').style.display = 'none';
-    }
-    document.getElementById('stopBtn').onclick = function() {
-        typingActive = false;
-        if (typingTimer) clearTimeout(typingTimer);
-        showSendButton();
-    };
-    function attachActions(row, role, text, editable=false) {
-        let messageContent = row.querySelector('.message-content');
+      }
+
+      function createMessageRow(role, text) {
+        const row = document.createElement('div');
+        row.className = `message-row ${role}`;
+        const iconSrc = role === 'ai' ? "{% static 'imgs/bot.svg' %}" : "{% static 'imgs/user.svg' %}";
+        row.innerHTML = `
+          <div class="profile-icon" aria-hidden="true"><img src="${iconSrc}" alt="${role}"></div>
+          <div class="message-content" role="article" aria-label="${role} message"></div>
+        `;
+        return row;
+      }
+
+      function attachActions(row, role, text) {
+        const messageContent = row.querySelector('.message-content');
         let oldActions = messageContent.querySelector('.actions-row');
         if (oldActions) oldActions.remove();
         if (role === "ai") {
-            let actions = document.createElement('div');
-            actions.className = "actions-row";
-            let speakBtn = document.createElement('button');
-            speakBtn.className = "speak-btn";
-            speakBtn.innerText = "🔈 Listen";
-            speakBtn.onclick = () => speak(text, messageContent, row);
-            actions.appendChild(speakBtn);
-            let requeryBtn = document.createElement('button');
-            requeryBtn.className = "requery-btn";
-            requeryBtn.innerText = "↻ Retry";
-            requeryBtn.onclick = () => {
-                if (lastUserPrompt) {
-                    requeryText = lastUserPrompt;
-                    submitPrompt(requeryText, true);
-                }
-            };
-            actions.appendChild(requeryBtn);
-            let editBtn = document.createElement('button');
-            editBtn.className = "edit-btn";
-            editBtn.innerText = "✎ Edit";
-            editBtn.onclick = () => {
-                promptInput.value = lastUserPrompt;
-                promptInput.focus();
-            };
-            actions.appendChild(editBtn);
-            messageContent.appendChild(actions);
-        }
-    }
-    function addMessage(role, text, typing=false, editable=false) {
-        const row = document.createElement('div');
-        row.className = `message-row ${role}`;
-        let iconSrc = role === 'ai' ? "{% static 'imgs/bot.svg' %}" : "{% static 'imgs/user.svg' %}";
-        row.innerHTML = `
-            <div class="profile-icon"><img src="${iconSrc}" alt="${role}"></div>
-            <div class="message-content"></div>
-        `;
-        chatContainer.appendChild(row);
-        const messageElem = row.querySelector('.message-content');
-        let formatted = formatMessage(text);
-        messageElem.dataset.originalHtml = formatted;
-        if (role === 'ai') {
-            if (typing) typeMessage(messageElem, text, () => {}, row);
-            else {
-                messageElem.innerHTML = `<div class="ai-header"><img src="{% static 'imgs/bot.svg' %}" alt="AI" class="ai-icon">AI Response</div>` + formatted;
-                Prism.highlightAll();
-                attachActions(row, role, text, editable);
-                attachCopyHandlers(messageElem);
-                chatContainer.scrollTop = chatContainer.scrollHeight;
+          const actions = document.createElement('div');
+          actions.className = "actions-row";
+          // Listen (speak)
+          const speakBtn = document.createElement('button');
+          speakBtn.className = "speak-btn";
+          speakBtn.innerText = "🔈 Listen";
+          speakBtn.setAttribute('aria-label', 'Listen to this message');
+          speakBtn.onclick = () => speak(text, messageContent, row);
+          actions.appendChild(speakBtn);
+          // Retry (requery)
+          const requeryBtn = document.createElement('button');
+          requeryBtn.className = "requery-btn";
+          requeryBtn.innerText = "↻ Retry";
+          requeryBtn.setAttribute('aria-label', 'Retry with previous prompt');
+          requeryBtn.onclick = () => {
+            if (lastUserPrompt) {
+              requeryText = lastUserPrompt;
+              submitPrompt(requeryText, true);
             }
-        } else {
-            messageElem.innerHTML = formatted;
-            attachActions(row, role, text, editable);
-            attachCopyHandlers(messageElem);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
+          };
+          actions.appendChild(requeryBtn);
+          // Edit (copy back to input)
+          const editBtn = document.createElement('button');
+          editBtn.className = "edit-btn";
+          editBtn.innerText = "✎ Edit";
+          editBtn.setAttribute('aria-label', 'Edit previous prompt');
+          editBtn.onclick = () => {
+            const promptInput = document.getElementById('prompt');
+            if (promptInput) {
+              promptInput.value = lastUserPrompt;
+              promptInput.focus();
+            }
+          };
+          actions.appendChild(editBtn);
+
+          messageContent.appendChild(actions);
         }
-    }
-    function attachCopyHandlers(messageElem) {
+      }
+
+      function attachCopyHandlers(messageElem) {
         const copyButtons = messageElem.querySelectorAll('.copy-btn');
         copyButtons.forEach(btn => {
-            btn.onclick = function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                const blockId = btn.getAttribute('data-blockid');
-                const pre = document.getElementById(blockId);
-                if (pre) {
-                    let codeEl = pre.querySelector('code');
-                    let code = "";
-                    if (codeEl) {
-                        code = codeEl.textContent;
-                    }
-                    navigator.clipboard.writeText(code);
-                    btn.classList.add('copied');
-                    btn.innerHTML = "<span>✔</span> Copied!";
-                    setTimeout(() => {
-                        btn.classList.remove('copied');
-                        btn.innerHTML = "<span>⧉</span> Copy";
-                    }, 1500);
-                }
-            };
+          btn.onclick = function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const blockId = btn.getAttribute('data-blockid');
+            const pre = document.getElementById(blockId);
+            if (pre) {
+              let codeEl = pre.querySelector('code');
+              let code = "";
+              if (codeEl) code = codeEl.textContent;
+              navigator.clipboard.writeText(code);
+              btn.classList.add('copied');
+              btn.innerHTML = "<span>✔</span> Copied!";
+              setTimeout(() => {
+                btn.classList.remove('copied');
+                btn.innerHTML = "<span>⧉</span> Copy";
+              }, 1400);
+            }
+          };
         });
-    }
-    function speak(text, element, row) {
+      }
+
+      function typeMessage(element, text, callback, row) {
+        let i = 0;
+        typingActive = true;
+        showStopButton();
+        function tick() {
+          if (!typingActive) {
+            element.innerHTML = `<div class="ai-header"><img src="{% static 'imgs/bot.svg' %}" alt="AI" class="ai-icon">G CHAT</div>` + formatMessage(text.slice(0, i));
+            attachCopyHandlers(element);
+            showSendButton();
+            attachActions(row, 'ai', text);
+            scrollChatToBottom();
+            if (callback) callback();
+            return;
+          }
+          if (i <= text.length) {
+            element.innerHTML = `<div class="ai-header"><img src="{% static 'imgs/bot.svg' %}" alt="AI" class="ai-icon">G CHAT</div>` + formatMessage(text.slice(0, i)) + '<span class="typing"></span>';
+            scrollChatToBottom();
+            i++;
+            typingTimer = setTimeout(tick, 6 + Math.random() * 10);
+          } else {
+            element.innerHTML = `<div class="ai-header"><img src="{% static 'imgs/bot.svg' %}" alt="AI" class="ai-icon">G CHAT</div>` + formatMessage(text);
+            Prism.highlightAll();
+            attachCopyHandlers(element);
+            showSendButton();
+            attachActions(row, 'ai', text);
+            typingActive = false;
+            scrollChatToBottom(true);
+            if (callback) callback();
+          }
+        }
+        tick();
+      }
+
+      function showStopButton() {
+        const send = document.getElementById('sendBtn');
+        const stop = document.getElementById('stopBtn');
+        if (send) send.style.display = 'none';
+        if (stop) stop.style.display = 'flex';
+      }
+      function showSendButton() {
+        const send = document.getElementById('sendBtn');
+        const stop = document.getElementById('stopBtn');
+        if (send) send.style.display = 'flex';
+        if (stop) stop.style.display = 'none';
+      }
+      document.getElementById('stopBtn').onclick = function() {
+        typingActive = false;
+        if (typingTimer) clearTimeout(typingTimer);
+        showSendButton();
+      };
+
+      function addMessage(role, text, typing=false) {
+        const row = createMessageRow(role, text);
+        chatContainer.appendChild(row);
+        const messageElem = row.querySelector('.message-content');
+        const formatted = formatMessage(text);
+        messageElem.dataset.originalHtml = formatted;
+        if (role === 'ai') {
+          if (typing) {
+            typeMessage(messageElem, text, () => {}, row);
+          } else {
+            messageElem.innerHTML = `<div class="ai-header"><img src="{% static 'imgs/bot.svg' %}" alt="AI" class="ai-icon">AI Response</div>` + formatted;
+            Prism.highlightAll();
+            attachActions(row, 'ai', text);
+            attachCopyHandlers(messageElem);
+            scrollChatToBottom(true);
+          }
+        } else {
+          messageElem.innerHTML = formatted;
+          attachActions(row, 'user', text);
+          attachCopyHandlers(messageElem);
+          scrollChatToBottom(true);
+        }
+      }
+
+      /* =========================
+         Speech (Text-to-Speech) with highlighting
+         ========================= */
+      function speak(text, element, row) {
         if (!('speechSynthesis' in window)) return;
         let plainText = text.replace(/(<([^>]+)>)/gi, "");
         const words = plainText.split(/(\s+)/);
@@ -817,141 +1294,245 @@
         let charCount = 0;
         let wordIndices = [];
         for (let i = 0; i < words.length; i++) {
-            html += `<span class="speak-word" data-idx="${i}">${escapeHtml(words[i])}</span>`;
-            wordIndices.push({start: charCount, end: charCount + words[i].length, idx: i});
-            charCount += words[i].length;
+          html += `<span class="speak-word" data-idx="${i}">${escapeHtml(words[i])}</span>`;
+          wordIndices.push({start: charCount, end: charCount + words[i].length, idx: i});
+          charCount += words[i].length + 1;
         }
         element.dataset.originalHtml = element.innerHTML;
         element.innerHTML = html;
         const utter = new window.SpeechSynthesisUtterance(plainText);
         utter.rate = 1;
         utter.onboundary = function(event) {
-            if (event.name === "word" || event.charIndex !== undefined) {
-                let idx = 0;
-                for (let w of wordIndices) {
-                    if (event.charIndex >= w.start && event.charIndex < w.end) {
-                        idx = w.idx;
-                        break;
-                    }
-                }
-                highlightWord(idx, element);
+          if (event.name === "word" || event.charIndex !== undefined) {
+            let idx = 0;
+            for (let w of wordIndices) {
+              if (event.charIndex >= w.start && event.charIndex < w.end) {
+                idx = w.idx; break;
+              }
             }
+            highlightWord(idx, element);
+          }
         };
         utter.onend = function() {
-            clearHighlights(element);
-            setTimeout(() => {
-                element.innerHTML = element.dataset.originalHtml || element.innerHTML;
-                Prism.highlightAll();
-                attachActions(row, 'ai', text, true);
-            }, 300);
+          clearHighlights(element);
+          setTimeout(() => {
+            element.innerHTML = element.dataset.originalHtml || element.innerHTML;
+            Prism.highlightAll();
+            attachActions(row, 'ai', text);
+          }, 300);
         };
         window.speechSynthesis.cancel();
         window.speechSynthesis.speak(utter);
+
         function highlightWord(idx, elem) {
-            elem.querySelectorAll('.speak-word').forEach((span, i) => {
-                span.classList.toggle('speak-cursor', i === idx);
-            });
+          elem.querySelectorAll('.speak-word').forEach((span, i) => {
+            span.classList.toggle('speak-cursor', i === idx);
+          });
         }
         function clearHighlights(elem) {
-            elem.querySelectorAll('.speak-word').forEach(span => {
-                span.classList.remove('speak-cursor');
-            });
+          elem.querySelectorAll('.speak-word').forEach(span => {
+            span.classList.remove('speak-cursor');
+          });
         }
-    }
-    function submitPrompt(prompt, fromRequery=false) {
+      }
+
+      /* =========================
+         Submit prompt to server (AJAX)
+         Expects server to return JSON: { reply: "..." }
+         Replace url and csrf token as needed for your Django view.
+         ========================= */
+      function submitPrompt(prompt, fromRequery=false) {
+        if (!prompt) return;
         lastUserPrompt = prompt;
-        addMessage('user', prompt, false, true);
-        promptInput.value = '';
+        addMessage('user', prompt, false);
+        const promptInput = document.getElementById('prompt');
+        if (promptInput) promptInput.value = '';
+
+        showTyping(true);
+
         fetch("{% url 'index' %}", {
-            method: "POST",
-            headers: {
-                "X-CSRFToken": "{{ csrf_token }}",
-                "X-Requested-With": "XMLHttpRequest",
-                "Content-Type": "application/x-www-form-urlencoded"
-            },
-            body: "prompt=" + encodeURIComponent(prompt)
+          method: "POST",
+          headers: {
+            "X-CSRFToken": "{{ csrf_token }}",
+            "X-Requested-With": "XMLHttpRequest",
+            "Content-Type": "application/x-www-form-urlencoded"
+          },
+          body: "prompt=" + encodeURIComponent(prompt)
         })
         .then(resp => resp.json())
         .then(data => {
-            if (data.reply) {
-                addMessage('ai', data.reply, true);
-            }
+          showTyping(false);
+          if (data && data.reply) {
+            addMessage('ai', data.reply, true);
+          } else if (data && data.error) {
+            addMessage('ai', "Error: " + data.error);
+          } else {
+            addMessage('ai', "Sorry, no reply returned from server.");
+          }
         })
         .catch(err => {
-            addMessage('ai', "Sorry, something went wrong! Try again.");
+          showTyping(false);
+          addMessage('ai', "Sorry, something went wrong! Try again.");
         });
-    }
-    form.addEventListener('submit', function(e) {
+      }
+
+      const form = document.getElementById('chat_form');
+      const promptInput = document.getElementById('prompt');
+      form.addEventListener('submit', function(e) {
         e.preventDefault();
         const prompt = promptInput.value.trim();
         if (!prompt) return;
         submitPrompt(prompt, false);
-    });
-    let recognizing = false;
-    let recognition;
-    const micBtn = document.getElementById('micBtn');
-    const micIcon = document.getElementById('micIcon');
-    const micDefault = "{% static 'imgs/mic.svg' %}";
-    const micRecording = "{% static 'imgs/mic-recording.svg' %}";
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      });
+
+      /* Shift+Enter for newline handling and auto-grow textarea */
+      function switchToTextareaIfNeeded() {
+        // convert input to textarea if multi-line is needed
+        if (promptInput.tagName.toLowerCase() === 'textarea') return;
+        if (promptInput.value.indexOf('\n') !== -1) {
+          const ta = document.createElement('textarea');
+          ta.id = 'prompt';
+          ta.name = 'prompt';
+          ta.className = 'input-prompt';
+          ta.setAttribute('maxlength', promptInput.getAttribute('maxlength'));
+          ta.setAttribute('placeholder', promptInput.getAttribute('placeholder'));
+          ta.value = promptInput.value;
+          promptInput.parentNode.replaceChild(ta, promptInput);
+          promptInput = ta;
+          promptInput.addEventListener('input', autoResizeTextarea);
+          autoResizeTextarea.call(promptInput);
+        }
+      }
+      function autoResizeTextarea() {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 180) + 'px';
+      }
+      // listen for Shift+Enter to add newline (on input field)
+      promptInput.addEventListener('keydown', function(ev) {
+        if (ev.key === 'Enter' && !ev.shiftKey) {
+          // submit on Enter (if not multiline)
+          if (promptInput.tagName.toLowerCase() !== 'textarea') {
+            ev.preventDefault();
+            form.requestSubmit();
+          }
+        } else if (ev.key === 'Enter' && ev.shiftKey) {
+          // force conversion to textarea to allow newline
+          switchToTextareaIfNeeded();
+        }
+      });
+      promptInput.addEventListener('input', function() {
+        switchToTextareaIfNeeded();
+      });
+
+      /* =========================
+         Speech recognition (Mic) handling
+         ========================= */
+      let recognizing = false;
+      let recognition;
+      const micBtn = document.getElementById('micBtn');
+      const micIcon = document.getElementById('micIcon');
+      const micDefault = "{% static 'imgs/mic.svg' %}";
+      const micRecording = "{% static 'imgs/mic-recording.svg' %}";
+
+      if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         recognition = new SpeechRecognition();
         recognition.continuous = false;
         recognition.interimResults = true;
         recognition.lang = 'en-US';
+
         recognition.onstart = function() {
-            recognizing = true;
-            micBtn.classList.add('recording');
-            micIcon.src = micRecording;
+          recognizing = true;
+          micBtn.classList.add('recording');
+          if (micIcon) micIcon.src = micRecording;
         };
         recognition.onend = function() {
-            recognizing = false;
-            micBtn.classList.remove('recording');
-            micIcon.src = micDefault;
+          recognizing = false;
+          micBtn.classList.remove('recording');
+          if (micIcon) micIcon.src = micDefault;
         };
+
         let finalTranscript = '';
         recognition.onresult = function(event) {
-            let interimTranscript = '';
-            for (let i = event.resultIndex; i < event.results.length; ++i) {
-                let transcript = event.results[i][0].transcript;
-                if (event.results[i].isFinal) {
-                    finalTranscript += transcript;
-                } else {
-                    interimTranscript += transcript;
-                }
+          let interimTranscript = '';
+          for (let i = event.resultIndex; i < event.results.length; ++i) {
+            let transcript = event.results[i][0].transcript;
+            if (event.results[i].isFinal) {
+              finalTranscript += transcript;
+            } else {
+              interimTranscript += transcript;
             }
-            let combined = (finalTranscript + interimTranscript).replace(/[\n\r]/g, '');
-            if (combined.length > promptInput.maxLength) {
-                combined = combined.slice(0, promptInput.maxLength);
-            }
-            promptInput.value = combined;
-            switchToTextareaIfNeeded();
+          }
+          let combined = (finalTranscript + interimTranscript).replace(/[\n\r]/g, '');
+          if (combined.length > promptInput.maxLength) combined = combined.slice(0, promptInput.maxLength);
+          promptInput.value = combined;
+          switchToTextareaIfNeeded();
         };
+
         micBtn.addEventListener('click', function() {
-            if (recognizing) {
-                recognition.stop();
-                finalTranscript = '';
-                return;
-            }
+          if (recognizing) {
+            recognition.stop();
             finalTranscript = '';
-            recognition.start();
+            return;
+          }
+          finalTranscript = '';
+          recognition.start();
         });
-    } else {
+      } else {
         micBtn.disabled = true;
         micBtn.title = "Voice input not supported";
-    }
-    function scrollChatToBottom() {
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-    }
-    window.addEventListener('resize', scrollChatToBottom);
-    const observer = new MutationObserver(scrollChatToBottom);
-    observer.observe(chatContainer, { childList: true, subtree: true });
-    {% if reply %}
+      }
+
+      /* =========================
+         Typing indicator helpers
+         ========================= */
+      const typingIndicator = document.getElementById('typingIndicator');
+      function showTyping(on = true) {
+        if (!typingIndicator) return;
+        typingIndicator.style.display = on ? 'block' : 'none';
+        typingIndicator.setAttribute('aria-hidden', String(!on));
+      }
+
+      /* =========================
+         Scroll-to-bottom button logic
+         ========================= */
+      const scrollBtn = document.getElementById('scrollBtn');
+      function checkScroll() {
+        const threshold = 120;
+        if (!chatContainer) return;
+        const isNearBottom = (chatContainer.scrollHeight - chatContainer.scrollTop - chatContainer.clientHeight) < threshold;
+        if (!isNearBottom) {
+          scrollBtn.style.display = 'block';
+        } else {
+          scrollBtn.style.display = 'none';
+        }
+      }
+      chatContainer.addEventListener('scroll', checkScroll);
+      scrollBtn.addEventListener('click', () => scrollChatToBottom(true));
+
+      /* observe new messages to auto-hide scroll button */
+      const observer = new MutationObserver(scrollChatToBottom);
+      observer.observe(chatContainer, { childList: true, subtree: true });
+
+      /* =========================
+         Theme toggle
+         ========================= */
+      const themeToggle = document.getElementById('themeToggle');
+      themeToggle.addEventListener('click', () => {
+        const body = document.body;
+        const current = body.getAttribute('data-theme') || 'dark';
+        body.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
+      });
+
+      /* =========================
+         Init: If Django provided `reply`/`prompt` render them
+         ========================= */
+      {% if reply %}
         lastUserPrompt = `{{ prompt|escapejs }}`;
-        addMessage('user', lastUserPrompt, false, true);
+        addMessage('user', lastUserPrompt, false);
         addMessage('ai', `{{ reply|escapejs }}`, true);
-        scrollChatToBottom();
-    {% endif %}
-</script>
-</body>
+        scrollChatToBottom(true);
+      {% endif %}
+    </script>
+  </body>
 </html>
