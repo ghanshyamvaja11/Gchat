@@ -1548,60 +1548,85 @@ tick();
          Speech recognition (Mic) handling
          ========================= */
       let recognizing = false;
-      let recognition;
-      const micBtn = document.getElementById('micBtn');
-      const micIcon = document.getElementById('micIcon');
-      const micDefault = "{% static 'imgs/mic.svg' %}";
-      const micRecording = "{% static 'imgs/mic-recording.svg' %}";
+let recognition;
+const micBtn = document.getElementById('micBtn');
+const micIcon = document.getElementById('micIcon');
+const micDefault = "{% static 'imgs/mic.svg' %}";
+const micRecording = "{% static 'imgs/mic-recording.svg' %}";
 
-      if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        recognition = new SpeechRecognition();
-        recognition.continuous = false;
-        recognition.interimResults = true;
-        recognition.lang = 'en-US';
+if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SpeechRecognition();
+  recognition.continuous = false;
+  recognition.interimResults = true;
+  recognition.lang = 'en-US';
 
-        recognition.onstart = function() {
-          recognizing = true;
-          micBtn.classList.add('recording');
-          if (micIcon) micIcon.src = micRecording;
-        };
-        recognition.onend = function() {
-          recognizing = false;
-          micBtn.classList.remove('recording');
-          if (micIcon) micIcon.src = micDefault;
-        };
+  recognition.onstart = function() {
+    recognizing = true;
+    micBtn.classList.add('recording');
+    if (micIcon) micIcon.src = micRecording;
+  };
 
-        let finalTranscript = '';
-        recognition.onresult = function(event) {
-          let interimTranscript = '';
-          for (let i = event.resultIndex; i < event.results.length; ++i) {
-            let transcript = event.results[i][0].transcript;
-            if (event.results[i].isFinal) {
-              finalTranscript += transcript;
-            } else {
-              interimTranscript += transcript;
-            }
-          }
-          let combined = (finalTranscript + interimTranscript).replace(/[\n\r]/g, '');
-          if (combined.length > promptInput.maxLength) combined = combined.slice(0, promptInput.maxLength);
-          promptInput.value = combined;
-          switchToTextareaIfNeeded();
-        };
+  recognition.onend = function() {
+    recognizing = false;
+    micBtn.classList.remove('recording');
+    if (micIcon) micIcon.src = micDefault;
+  };
 
-        micBtn.addEventListener('click', function() {
-          if (recognizing) {
-            recognition.stop();
-            finalTranscript = '';
-            return;
-          }
-          finalTranscript = '';
-          recognition.start();
-        });
+  let finalTranscript = '';
+
+  // Simple auto-punctuation function
+  function addPunctuation(text) {
+    text = text.trim();
+
+    // Capitalize first letter
+    text = text.charAt(0).toUpperCase() + text.slice(1);
+
+    // If already ends with ., ! or ?, do nothing
+    if (!/[.!?]$/.test(text)) {
+      // Add ? if it starts with interrogatives
+      if (/^(who|what|when|where|why|how)\b/i.test(text)) {
+        text += '?';
       } else {
-        micBtn.disabled = true;
-        micBtn.title = "Voice input not supported";
+        text += '.'; // default period
       }
+    }
+
+    return text;
+  }
+
+  recognition.onresult = function(event) {
+    let interimTranscript = '';
+    for (let i = event.resultIndex; i < event.results.length; ++i) {
+      let transcript = event.results[i][0].transcript;
+
+      if (event.results[i].isFinal) {
+        finalTranscript += addPunctuation(transcript) + ' ';
+      } else {
+        interimTranscript += transcript + ' ';
+      }
+    }
+
+    let combined = (finalTranscript + interimTranscript).replace(/[\n\r]/g, '');
+    if (combined.length > promptInput.maxLength) combined = combined.slice(0, promptInput.maxLength);
+    promptInput.value = combined.trim();
+    switchToTextareaIfNeeded();
+  };
+
+  micBtn.addEventListener('click', function() {
+    if (recognizing) {
+      recognition.stop();
+      finalTranscript = '';
+      return;
+    }
+    finalTranscript = '';
+    recognition.start();
+  });
+
+} else {
+  micBtn.disabled = true;
+  micBtn.title = "Voice input not supported";
+}
 
       /* =========================
          Typing indicator helpers
