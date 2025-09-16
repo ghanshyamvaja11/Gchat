@@ -415,6 +415,11 @@
         z-index: 80;
       }
 
+      .input-prompt::placeholder {
+  color: var(--placeholder-color, rgba(226, 247, 255, 0.45));
+  opacity: 1;
+}
+
       .input-row {
         width: 100vw;
         max-width: 100vw;
@@ -1269,7 +1274,7 @@
           if (typing) {
             typeMessage(messageElem, text, () => {}, row);
           } else {
-            messageElem.innerHTML = `<div class="ai-header"><img src="{% static 'imgs/bot.svg' %}" alt="AI" class="ai-icon">AI Response</div>` + formatted;
+            messageElem.innerHTML = `<div class="ai-header"><img src="{% static 'imgs/bot.svg' %}" alt="AI" class="ai-icon">G CHat</div>` + formatted;
             Prism.highlightAll();
             attachActions(row, 'ai', text);
             attachCopyHandlers(messageElem);
@@ -1518,11 +1523,81 @@
          Theme toggle
          ========================= */
       const themeToggle = document.getElementById('themeToggle');
-      themeToggle.addEventListener('click', () => {
-        const body = document.body;
-        const current = body.getAttribute('data-theme') || 'dark';
-        body.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
+
+function applyTheme(newTheme) {
+  // Elements to adjust text color
+  const toBlackSelectors = [
+    'body',
+    '.message-content',
+    '.actions-row button',
+    '.ai-header',
+    '.ai-footer',
+    '.logo-bar',
+    '.username-box',
+    '.auth-btn',
+    '.logout-btn',
+    '.input-prompt'
+  ];
+  const elements = document.querySelectorAll(toBlackSelectors.join(','));
+
+  if (newTheme === 'light') {
+    elements.forEach(el => {
+      el.style.color = '#111';
+      if (el.classList.contains('input-prompt')) {
+        el.style.caretColor = '#111';
+        el.style.backgroundColor = '#fff';
+      }
+    });
+
+    // Placeholder + input
+    document.querySelectorAll('.input-prompt').forEach(el => {
+      el.style.setProperty('--placeholder-color', '#888');
+      el.style.setProperty('background-color', '#fff');
+      el.addEventListener('input', function() {
+        this.style.color = '#111';
       });
+    });
+
+    // Code/pre blocks
+    document.querySelectorAll('.message-content code, .message-content pre').forEach(el => {
+      el.style.color = '#2d3748';
+      el.style.background = '#f3f6fa';
+    });
+  } else {
+    elements.forEach(el => {
+      el.style.color = '';
+      if (el.classList.contains('input-prompt')) {
+        el.style.caretColor = '';
+        el.style.backgroundColor = '';
+      }
+    });
+
+    document.querySelectorAll('.input-prompt').forEach(el => {
+      el.style.setProperty('--placeholder-color', '');
+      el.style.setProperty('background-color', '');
+    });
+
+    document.querySelectorAll('.message-content code, .message-content pre').forEach(el => {
+      el.style.color = '';
+      el.style.background = '';
+    });
+  }
+}
+
+// Toggle click
+themeToggle.addEventListener('click', () => {
+  const body = document.body;
+  const current = body.getAttribute('data-theme') || 'dark';
+  const newTheme = current === 'dark' ? 'light' : 'dark';
+  body.setAttribute('data-theme', newTheme);
+  applyTheme(newTheme);
+});
+
+// Auto-check every 100ms
+setInterval(() => {
+  const currentTheme = document.body.getAttribute('data-theme') || 'dark';
+  applyTheme(currentTheme);
+}, 100);
 
       /* =========================
          Init: If Django provided `reply`/`prompt` render them
