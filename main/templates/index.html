@@ -627,129 +627,157 @@
       /* =========================
          POPUP STYLES (Login / Signup)
          ========================= */
-      .popup-bg {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background: rgba(11, 20, 40, 0.82);
-        z-index: 9999;
-        display: none;
-        align-items: center;
-        justify-content: center;
-      }
+     .popup-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(11, 20, 40, 0.82);
+    z-index: 9999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    overflow-y: auto;
+    padding: 10px;
+}
 
-      .popup-bg.active {
-        display: flex;
-      }
+.popup-bg.active {
+    display: flex;
+}
 
-      .popup-form {
-        background: var(--chat-bg);
-        border-radius: 14px;
-        max-width: 420px;
-        width: 94vw;
-        padding: 28px 26px;
-        box-shadow: 0 16px 36px rgba(0,0,0,0.32);
-        position: relative;
-        color: #fff;
-        border: 2px solid var(--primary);
-      }
+.popup-form {
+    background: var(--chat-bg);
+    border-radius: 14px;
+    max-width: 420px;
+    width: 100%;
+    padding: 24px 20px;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.32);
+    position: relative;
+    color: var(--accent);
+    border: 2px solid var(--primary);
+    box-sizing: border-box;
+}
 
-      .popup-form h2 {
-        font-size: 1.4rem;
-        margin: 0 0 18px 0;
-        font-weight: 700;
-        letter-spacing: 1px;
-        text-align: center;
-        color: var(--primary);
-      }
+.popup-form h2 {
+    font-size: 1.4rem;
+    margin: 0 0 18px 0;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-align: center;
+    color: var(--primary);
+}
 
-      .popup-form label {
-        font-size: 1rem;
-        margin-bottom: 6px;
-        display: block;
-        color: var(--secondary);
-        font-weight: 600;
-        margin-top: 8px;
-      }
+.popup-form label {
+    font-size: 1rem;
+    margin-bottom: 6px;
+    display: block;
+    color: var(--secondary);
+    font-weight: 600;
+    margin-top: 8px;
+}
 
-      .popup-form input[type="text"],
-      .popup-form input[type="password"],
-      .popup-form input[type="email"] {
-        width: 100%;
-        padding: 10px 12px;
-        border-radius: 8px;
-        border: 1.5px solid rgba(255,255,255,0.06);
-        background: #0f1416;
-        color: #fff;
-        font-size: 1rem;
-        font-family: var(--font-main);
-        box-shadow: none;
-        outline: none;
-      }
+.popup-form input[type="text"],
+.popup-form input[type="password"],
+.popup-form input[type="email"] {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1.5px solid rgba(255, 255, 255, 0.1);
+    background: var(--ai-bg);
+    color: var(--accent);
+    font-size: 1rem;
+    font-family: var(--font-main);
+    box-shadow: none;
+    outline: none;
+    box-sizing: border-box;
+}
 
-      .popup-form input:focus {
-        border: 1.5px solid var(--primary);
-        background: #171b1d;
-      }
+.popup-form input:focus {
+    border: 1.5px solid var(--primary);
+    background: var(--input-focus);
+}
 
-      .password-wrapper {
-        position: relative;
-        display: flex;
-        align-items: center;
-      }
-      .password-eye-btn {
-        position: absolute;
-        right: 8px;
-        top: 50%;
-        transform: translateY(-50%);
-        background: none;
-        border: none;
-        cursor: pointer;
-        padding: 0;
-        height: 28px;
-      }
-      .password-eye-btn svg {
-        width: 22px;
-        height: 22px;
-        fill: var(--secondary);
-      }
+.password-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
 
-      .remember-row {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-top: 8px;
-      }
+.password-eye-btn {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    height: 28px;
+}
 
-      .popup-form button[type="submit"] {
-        width: 100%;
-        padding: 12px 0;
-        border-radius: 8px;
-        background: linear-gradient(90deg, var(--primary) 60%, var(--secondary) 100%);
-        color: #232526;
-        border: none;
-        font-size: 1rem;
-        font-weight: 700;
-      }
+.password-eye-btn svg {
+    width: 22px;
+    height: 22px;
+    fill: var(--secondary);
+}
 
-      .popup-extra {
-        margin-top: 12px;
-        text-align: center;
-        color: var(--secondary);
-      }
+.remember-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+    font-size: 0.9rem;
+    color: var(--secondary);
+}
 
-      .popup-close {
-        position: absolute;
-        top: 12px;
-        right: 12px;
-        background: none;
-        border: none;
-        color: var(--secondary);
-        font-size: 1.6rem;
-        cursor: pointer;
-      }
+.popup-form button[type="submit"] {
+    width: 100%;
+    padding: 12px 0;
+    border-radius: 8px;
+    background: linear-gradient(90deg, var(--primary) 60%, var(--secondary) 100%);
+    color: #232526;
+    border: none;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.popup-form button[type="submit"]:hover {
+    filter: brightness(1.1);
+}
+
+.popup-extra {
+    margin-top: 12px;
+    text-align: center;
+    color: var(--secondary);
+    font-size: 0.95rem;
+}
+
+.popup-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: none;
+    border: none;
+    color: var(--secondary);
+    font-size: 1.6rem;
+    cursor: pointer;
+}
+
+/* Responsive tweaks */
+@media (max-width: 480px) {
+    .popup-form {
+        padding: 20px 16px;
+    }
+    .popup-form h2 {
+        font-size: 1.2rem;
+    }
+    .password-eye-btn {
+        height: 24px;
+    }
+}
 
       /* =========================
          FOOTER
@@ -1021,7 +1049,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7c-5.514 0-8.606 5.119-8.93 5.679a1.002 1.002 0 000 1.063c.324.561 3.416 5.679 8.93 5.679 5.513 0 8.606-5.118 8.93-5.679a1 1 0 000-1.063c-.324-.56-3.417-5.679-8.93-5.679z"/></svg>
               </span>
             </button>
-          </div>
+          </div><br>
 
           <button type="submit">Sign Up</button>
           <div class="popup-extra">Already have an account? <a onclick="switchPopup('signupPopup','loginPopup')" role="button">Login</a></div>
@@ -1150,48 +1178,52 @@
       }
 
       function attachActions(row, role, text) {
-        const messageContent = row.querySelector('.message-content');
-        let oldActions = messageContent.querySelector('.actions-row');
-        if (oldActions) oldActions.remove();
-        if (role === "ai") {
-          const actions = document.createElement('div');
-          actions.className = "actions-row";
-          // Listen (speak)
-          const speakBtn = document.createElement('button');
-          speakBtn.className = "speak-btn";
-          speakBtn.innerText = "🔈 Listen";
-          speakBtn.setAttribute('aria-label', 'Listen to this message');
-          speakBtn.onclick = () => speak(text, messageContent, row);
-          actions.appendChild(speakBtn);
-          // Retry (requery)
-          const requeryBtn = document.createElement('button');
-          requeryBtn.className = "requery-btn";
-          requeryBtn.innerText = "↻ Retry";
-          requeryBtn.setAttribute('aria-label', 'Retry with previous prompt');
-          requeryBtn.onclick = () => {
-            if (lastUserPrompt) {
-              requeryText = lastUserPrompt;
-              submitPrompt(requeryText, true);
-            }
-          };
-          actions.appendChild(requeryBtn);
-          // Edit (copy back to input)
-          const editBtn = document.createElement('button');
-          editBtn.className = "edit-btn";
-          editBtn.innerText = "✎ Edit";
-          editBtn.setAttribute('aria-label', 'Edit previous prompt');
-          editBtn.onclick = () => {
-            const promptInput = document.getElementById('prompt');
-            if (promptInput) {
-              promptInput.value = lastUserPrompt;
-              promptInput.focus();
-            }
-          };
-          actions.appendChild(editBtn);
+  const messageContent = row.querySelector('.message-content');
+  let oldActions = messageContent.querySelector('.actions-row');
+  if (oldActions) oldActions.remove();
 
-          messageContent.appendChild(actions);
-        }
+  if (role === "ai") {
+    const actions = document.createElement('div');
+    actions.className = "actions-row";
+
+    // Listen (speak)
+    const speakBtn = document.createElement('button');
+    speakBtn.className = "speak-btn";
+    speakBtn.innerText = "🔈 Listen";
+    speakBtn.setAttribute('aria-label', 'Listen to this message');
+    speakBtn.onclick = () => speak(text, messageContent, row);
+    actions.appendChild(speakBtn);
+
+    // Retry (requery)
+    const requeryBtn = document.createElement('button');
+    requeryBtn.className = "requery-btn";
+    requeryBtn.innerText = "↻ Retry";
+    requeryBtn.setAttribute('aria-label', 'Retry with previous prompt');
+    requeryBtn.onclick = () => {
+      if (lastUserPrompt) {
+        requeryText = lastUserPrompt;
+        submitPrompt(requeryText, true);
       }
+    };
+    actions.appendChild(requeryBtn);
+
+    // Edit (copy back to input)
+    const editBtn = document.createElement('button');
+    editBtn.className = "edit-btn";
+    editBtn.innerText = "✎ Edit";
+    editBtn.setAttribute('aria-label', 'Edit previous prompt');
+    editBtn.onclick = () => {
+      const promptInput = document.getElementById('prompt');
+      if (promptInput) {
+        promptInput.value = lastUserPrompt;
+        promptInput.focus();
+      }
+    };
+    actions.appendChild(editBtn);
+
+    messageContent.appendChild(actions);
+  }
+}
 
       function attachCopyHandlers(messageElem) {
         const copyButtons = messageElem.querySelectorAll('.copy-btn');
@@ -1218,37 +1250,58 @@
       }
 
       function typeMessage(element, text, callback, row) {
-        let i = 0;
-        typingActive = true;
-        showStopButton();
-        function tick() {
-          if (!typingActive) {
-            element.innerHTML = `<div class="ai-header"><img src="{% static 'imgs/bot.svg' %}" alt="AI" class="ai-icon">G CHAT</div>` + formatMessage(text.slice(0, i));
-            attachCopyHandlers(element);
-            showSendButton();
-            attachActions(row, 'ai', text);
-            scrollChatToBottom();
-            if (callback) callback();
-            return;
-          }
-          if (i <= text.length) {
-            element.innerHTML = `<div class="ai-header"><img src="{% static 'imgs/bot.svg' %}" alt="AI" class="ai-icon">G CHAT</div>` + formatMessage(text.slice(0, i)) + '<span class="typing"></span>';
-            scrollChatToBottom();
-            i++;
-            typingTimer = setTimeout(tick, 6 + Math.random() * 10);
-          } else {
-            element.innerHTML = `<div class="ai-header"><img src="{% static 'imgs/bot.svg' %}" alt="AI" class="ai-icon">G CHAT</div>` + formatMessage(text);
-            Prism.highlightAll();
-            attachCopyHandlers(element);
-            showSendButton();
-            attachActions(row, 'ai', text);
-            typingActive = false;
-            scrollChatToBottom(true);
-            if (callback) callback();
-          }
-        }
-        tick();
-      }
+  let i = 0;
+  typingActive = true;
+  showStopButton();
+
+  const chatWindow = document.getElementById("chat_container"); // ✅ main chat container
+
+  function isAtBottom() {
+    return chatWindow.scrollHeight - chatWindow.scrollTop <= chatWindow.clientHeight + 5;
+  }
+
+  function tick() {
+    if (!typingActive) {
+      element.innerHTML =
+        `<div class="ai-header"><img src="{% static 'imgs/bot.svg' %}" alt="AI" class="ai-icon">G CHAT</div>` +
+        formatMessage(text.slice(0, i));
+      attachCopyHandlers(element);
+      showSendButton();
+      attachActions(row, "ai", text);
+      // only scroll if user is already at bottom
+      if (isAtBottom()) scrollChatToBottom();
+      if (callback) callback();
+      return;
+    }
+
+    if (i <= text.length) {
+      element.innerHTML =
+        `<div class="ai-header"><img src="{% static 'imgs/bot.svg' %}" alt="AI" class="ai-icon">G CHAT</div>` +
+        formatMessage(text.slice(0, i)) +
+        '<span class="typing"></span>';
+
+      // ✅ auto-scroll only if user hasn't scrolled up
+      if (isAtBottom()) scrollChatToBottom();
+
+      i++;
+      typingTimer = setTimeout(tick, 1 + Math.random() * 3);
+    } else {
+      element.innerHTML =
+        `<div class="ai-header"><img src="{% static 'imgs/bot.svg' %}" alt="AI" class="ai-icon">G CHAT</div>` +
+        formatMessage(text);
+      Prism.highlightAll();
+      attachCopyHandlers(element);
+      showSendButton();
+      attachActions(row, "ai", text);
+      typingActive = false;
+      // ✅ scroll only if user was at bottom
+      if (isAtBottom()) scrollChatToBottom(true);
+      if (callback) callback();
+    }
+  }
+  tick();
+}
+
 
       function showStopButton() {
         const send = document.getElementById('sendBtn');
@@ -1295,55 +1348,100 @@
       /* =========================
          Speech (Text-to-Speech) with highlighting
          ========================= */
-      function speak(text, element, row) {
-        if (!('speechSynthesis' in window)) return;
-        let plainText = text.replace(/(<([^>]+)>)/gi, "");
-        const words = plainText.split(/(\s+)/);
-        let html = "";
-        let charCount = 0;
-        let wordIndices = [];
-        for (let i = 0; i < words.length; i++) {
-          html += `<span class="speak-word" data-idx="${i}">${escapeHtml(words[i])}</span>`;
-          wordIndices.push({start: charCount, end: charCount + words[i].length, idx: i});
-          charCount += words[i].length + 1;
-        }
-        element.dataset.originalHtml = element.innerHTML;
-        element.innerHTML = html;
-        const utter = new window.SpeechSynthesisUtterance(plainText);
-        utter.rate = 1;
-        utter.onboundary = function(event) {
-          if (event.name === "word" || event.charIndex !== undefined) {
-            let idx = 0;
-            for (let w of wordIndices) {
-              if (event.charIndex >= w.start && event.charIndex < w.end) {
-                idx = w.idx; break;
-              }
-            }
-            highlightWord(idx, element);
-          }
-        };
-        utter.onend = function() {
-          clearHighlights(element);
-          setTimeout(() => {
-            element.innerHTML = element.dataset.originalHtml || element.innerHTML;
-            Prism.highlightAll();
-            attachActions(row, 'ai', text);
-          }, 300);
-        };
-        window.speechSynthesis.cancel();
-        window.speechSynthesis.speak(utter);
+     function speak(text, element, row) {
+  if (!('speechSynthesis' in window)) return;
 
-        function highlightWord(idx, elem) {
-          elem.querySelectorAll('.speak-word').forEach((span, i) => {
-            span.classList.toggle('speak-cursor', i === idx);
-          });
-        }
-        function clearHighlights(elem) {
-          elem.querySelectorAll('.speak-word').forEach(span => {
-            span.classList.remove('speak-cursor');
-          });
+  let plainText = text.replace(/(<([^>]+)>)/gi, "");
+  const words = plainText.split(/(\s+)/);
+  let html = "";
+  let charCount = 0;
+  let wordIndices = [];
+
+  // wrap each word in span
+  for (let i = 0; i < words.length; i++) {
+    html += `<span class="speak-word" data-idx="${i}">${escapeHtml(words[i])}</span>`;
+    wordIndices.push({ start: charCount, end: charCount + words[i].length, idx: i });
+    charCount += words[i].length + 1;
+  }
+
+  // store original html
+  element.dataset.originalHtml = element.innerHTML;
+  element.innerHTML = html;
+
+  // create utterance
+  const utter = new window.SpeechSynthesisUtterance(plainText);
+  utter.rate = 2.4;  // ✅ faster speed
+
+  // highlight words while speaking
+  utter.onboundary = function(event) {
+    if (event.name === "word" || event.charIndex !== undefined) {
+      let idx = 0;
+      for (let w of wordIndices) {
+        if (event.charIndex >= w.start && event.charIndex < w.end) {
+          idx = w.idx;
+          break;
         }
       }
+      highlightWord(idx, element);
+    }
+  };
+
+  // when finished naturally
+  utter.onend = function() {
+    finishSpeaking();
+  };
+
+  // cancel any ongoing speech
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(utter);
+
+  // ✅ show global Stop button
+  showStopButton();
+
+  // hook stopBtn for interrupt
+  const stopBtn = document.getElementById('stopBtn');
+  if (stopBtn) {
+    stopBtn.onclick = () => {
+      window.speechSynthesis.cancel(); // stop speech immediately
+      finishSpeaking();
+    };
+  }
+
+  function highlightWord(idx, elem) {
+    elem.querySelectorAll('.speak-word').forEach((span, i) => {
+      span.classList.toggle('speak-cursor', i === idx);
+    });
+  }
+
+  function clearHighlights(elem) {
+    elem.querySelectorAll('.speak-word').forEach(span => {
+      span.classList.remove('speak-cursor');
+    });
+  }
+
+  function finishSpeaking() {
+    clearHighlights(element);
+
+    setTimeout(() => {
+      // restore original html
+      element.innerHTML = element.dataset.originalHtml || element.innerHTML;
+
+      // re-highlight code if needed
+      if (typeof Prism !== "undefined") {
+        Prism.highlightAll();
+      }
+
+      // reattach action buttons
+      attachActions(row, 'ai', text);
+
+      // ✅ restore Send button & hide Stop
+      const send = document.getElementById('sendBtn');
+      const stop = document.getElementById('stopBtn');
+      if (send) send.style.display = 'flex';
+      if (stop) stop.style.display = 'none';
+    }, 300);
+  }
+}
 
       /* =========================
          Submit prompt to server (AJAX)
