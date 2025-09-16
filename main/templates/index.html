@@ -765,6 +765,10 @@
         z-index: 40;
       }
 
+      .warnings {
+        color: white;
+      }
+
       /* =========================
          RESPONSIVE BEHAVIOR
          - On small screens we want the actions (listen/retry/edit)
@@ -941,7 +945,7 @@
         </div>
         <!-- footer placed outside the form (valid HTML) -->
       <footer>
-        <span style="color: white; font-size: 13px;">Sometimes incorrect, check facts.</span>
+        <span style="font-size: 13px;" class="warnings">Sometimes incorrect, check facts.</span>
         <br />
         © {{ now|date:"Y" }} Developed by
         <a href="https://codminds.com" style="text-decoration: none; color: var(--primary)" target="_blank" rel="noopener">CodMinds.com</a>
@@ -1536,7 +1540,8 @@ function applyTheme(newTheme) {
     '.username-box',
     '.auth-btn',
     '.logout-btn',
-    '.input-prompt'
+    '.input-prompt',
+    '.warnings'
   ];
   const elements = document.querySelectorAll(toBlackSelectors.join(','));
 
