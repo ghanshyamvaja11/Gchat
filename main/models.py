@@ -13,17 +13,12 @@ User = get_user_model()
 
 
 class RequestCount(models.Model):
-    ip_address = models.CharField(
-        max_length=45, blank=True, null=True)  # For anonymous
-    device_id = models.CharField(
-        max_length=100, null=True, blank=True)  # For anonymous
-    user = models.ForeignKey(User, null=True, blank=True,
-                             on_delete=models.CASCADE)  # For logged-in
+    user = models.ForeignKey(
+        User, null=True, blank=True, on_delete=models.CASCADE)
+    device_id = models.CharField(max_length=64, db_index=True)
+    ip_address = models.GenericIPAddressField(null=True)
+    window_start = models.DateTimeField(null=True)
     requests = models.PositiveIntegerField(default=0)
-    window_start = models.DateTimeField(null=True, blank=True)
-    last_request = models.DateTimeField(auto_now=True)
 
-    def __str__(self):
-        if self.user:
-            return f"{self.user.username} - {self.requests} reqs"
-        return f"{self.ip_address} - {self.requests} reqs"
+    class Meta:
+        unique_together = ("user", "device_id", "ip_address")

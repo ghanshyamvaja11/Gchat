@@ -148,62 +148,62 @@ def request_limit_check(request):
     now = get_now()
     user = request.user if request.user.is_authenticated else None
 
-    # Get device identifier from cookie or generate new
-    device_id = request.COOKIES.get('device_id')
+    # ✅ Device ID from cookie (or generate)
+    device_id = request.COOKIES.get("device_id")
     if not device_id:
-        device_id = str(uuid.uuid4())  # generate unique ID for device
+        device_id = str(uuid.uuid4())
+
+    # ✅ Always capture IP
+    ip = get_client_ip(request)
 
     if user:
+        # Logged in users — 30 requests per 5 hours
         window = timedelta(hours=5)
         max_requests = 30
-        obj, created = RequestCount.objects.get_or_create(user=user, device_id=device_id, defaults={
-            'window_start': now,
-            'requests': 0,
-        })
-        if obj.window_start is None or now - obj.window_start > window:
-            obj.window_start = now
-            obj.requests = 1
-            obj.save()
-            return True, None
-        elif obj.requests < max_requests:
-            obj.requests += 1
-            obj.save()
-            return True, None
-        else:
-            reset_time = obj.window_start + window
-            wait_seconds = max(0, int((reset_time - now).total_seconds()))
-            wait_hours = wait_seconds // 3600
-            wait_minutes = (wait_seconds % 3600) // 60
-            message = (
-                f"Request limit reached (30 per 5 hours). "
-                f"Try again in {wait_hours}h {wait_minutes}m, or after {reset_time.strftime('%d-%m-%Y %I:%M %p')}"
-            )
-            return False, message
+        obj, created = RequestCount.objects.get_or_create(
+            user=user,
+            device_id=device_id,
+            ip_address=ip,
+            defaults={"window_start": now, "requests": 0},
+        )
     else:
+        # Guests — 5 requests per 24 hours
         window = timedelta(hours=24)
         max_requests = 5
-        ip = get_client_ip(request)
-        obj, created = RequestCount.objects.get_or_create(ip_address=ip, device_id=device_id, defaults={
-            'window_start': now,
-            'requests': 0,
-        })
-        if obj.window_start is None or now - obj.window_start > window:
-            obj.window_start = now
-            obj.requests = 1
-            obj.save()
-            return True, None
-        elif obj.requests < max_requests:
-            obj.requests += 1
-            obj.save()
-            return True, None
+        obj, created = RequestCount.objects.get_or_create(
+            user=None,
+            device_id=device_id,
+            ip_address=ip,
+            defaults={"window_start": now, "requests": 0},
+        )
+
+    # ✅ Reset or increment counter
+    if obj.window_start is None or now - obj.window_start > window:
+        obj.window_start = now
+        obj.requests = 1
+        obj.save()
+        return True, None
+    elif obj.requests < max_requests:
+        obj.requests += 1
+        obj.save()
+        return True, None
+    else:
+        reset_time = obj.window_start + window
+        wait_seconds = max(0, int((reset_time - now).total_seconds()))
+        wait_hours = wait_seconds // 3600
+        wait_minutes = (wait_seconds % 3600) // 60
+
+        if user:
+            message = (
+                f"Request limit reached (30 per 5 hours). "
+                f"Try again in {wait_hours}h {wait_minutes}m, "
+                f"or after {reset_time.strftime('%d-%m-%Y %I:%M %p')}."
+            )
         else:
-            reset_time = obj.window_start + window
-            wait_seconds = max(0, int((reset_time - now).total_seconds()))
-            wait_hours = wait_seconds // 3600
-            wait_minutes = (wait_seconds % 3600) // 60
             message = (
                 f"Request limit reached (5 per 24 hours). "
-                f"Try again in {wait_hours}h {wait_minutes}m, or after {reset_time.strftime('%d-%m-%Y %I:%M %p')}. "
+                f"Try again in {wait_hours}h {wait_minutes}m, "
+                f"or after {reset_time.strftime('%d-%m-%Y %I:%M %p')}. "
                 f"Sign up or login for more requests!"
             )
-            return False, message
+        return False, message
