@@ -202,8 +202,10 @@ def get_client_ip(request):
     xff = request.META.get("HTTP_X_FORWARDED_FOR")
     return xff.split(",")[0].strip() if xff else request.META.get("REMOTE_ADDR")
 
+
 def request_limit_check(request):
     now = get_now()
+    now_local = now.astimezone(ASIA_KOLKATA)  # Convert current time to IST
     user = request.user if request.user.is_authenticated else None
 
     # 1️⃣ Get device_id for guest
@@ -253,7 +255,10 @@ def request_limit_check(request):
 
     # 6️⃣ Limit reached
     reset_time = obj.window_start + window
-    wait_seconds = max(0, int((reset_time - now).total_seconds()))
+    reset_time_local = reset_time.astimezone(
+        ASIA_KOLKATA)  # Convert reset time to IST
+
+    wait_seconds = max(0, int((reset_time_local - now_local).total_seconds()))
     wait_hours = wait_seconds // 3600
     wait_minutes = (wait_seconds % 3600) // 60
 
@@ -261,14 +266,14 @@ def request_limit_check(request):
         message = (
             f"Request limit reached ({max_requests} per {int(window.total_seconds()/3600)} hours). "
             f"Try again in {wait_hours}h {wait_minutes}m, "
-            f"or after {reset_time.strftime('%d-%m-%Y %I:%M %p')}."
+            f"or after {reset_time_local.strftime('%d-%m-%Y %I:%M %p')}."
         )
     else:
         message = (
             f"Request limit reached ({max_requests} per {int(window.total_seconds()/3600)} hours). "
             f"Try again in {wait_hours}h {wait_minutes}m, "
-            f"or after {reset_time.strftime('%d-%m-%Y %I:%M %p')}. "
-            f"Sign up or login for more requests!"
+            f"or after {reset_time_local.strftime('%d-%m-%Y %I:%M %p')}. "
+            "Sign up or login for more requests!"
         )
 
     return False, message, new_device_cookie
