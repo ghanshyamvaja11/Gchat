@@ -21,4 +21,4 @@ class RequestCount(models.Model):
     requests = models.PositiveIntegerField(default=0)
 
     class Meta:
-        unique_together = ("user", "device_id", "ip_address")
+        unique_together = ("user", "device_id")
